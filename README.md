@@ -167,6 +167,14 @@ src/
 - Código de verificación único
 - Espacios para firmas
 
+### Actualización - Sección Sobre Nosotros (27 de noviembre de 2025)
+
+- Se agregaron las fotos reales del equipo en la sección Sobre Nosotros.
+- Se estilizaron las tarjetas con mejores sombras, centrado de texto y estructura visual.
+- Se corrigió la visualización del correo/teléfono para todos los roles.
+- Se reorganizó la importación de imágenes desde la carpeta dashboard/fotos.
+- Se corrigió redirección de logout y visualización por roles.
+
 ## 🌙 Tema Claro/Oscuro
 
 El tema se controla mediante el toggle en el header. La preferencia se guarda automáticamente en localStorage.
