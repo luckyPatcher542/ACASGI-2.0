@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { gruposData, Grupo } from '../../../mocks/grupos';
+import { createStatusChangeNotification } from '../../../mocks/notifications';
 
 function NewGroupForm({ onSubmit, onCancel, faculties }: { 
   onSubmit: (data: Omit<Grupo, 'id'>) => void;
@@ -100,6 +101,10 @@ export default function GruposSection() {
           ? { ...g, estado: nuevoEstado }
           : g
       ));
+      
+      // Crear notificación
+      createStatusChangeNotification(statusChangeGroup.nombre, 'grupo', nuevoEstado);
+      
       alert(`Grupo ${nuevoEstado === 'Activo' ? 'activado' : 'inactivado'} correctamente.\nMotivo: ${statusChangeReason}`);
       setShowStatusModal(false);
       setStatusChangeGroup(null);

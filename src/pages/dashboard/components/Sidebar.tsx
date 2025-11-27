@@ -1,18 +1,24 @@
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../router/AuthContext';
 
 export default function Sidebar() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
-  const menuItems = [
-    { id: 'dashboard', icon: 'ri-dashboard-line', label: 'Dashboard', path: '/dashboard' },
-    { id: 'grupos', icon: 'ri-team-line', label: 'Grupos de Investigación', path: '/dashboard/grupos' },
-    { id: 'semilleros', icon: 'ri-plant-line', label: 'Semilleros', path: '/dashboard/semilleros' },
-    { id: 'integrantes', icon: 'ri-user-line', label: 'Integrantes', path: '/dashboard/integrantes' },
-    { id: 'certificados', icon: 'ri-award-line', label: 'Certificados', path: '/dashboard/certificados' },
-    { id: 'reportes', icon: 'ri-bar-chart-line', label: 'Reportes', path: '/dashboard/reportes' },
-    { id: 'nosotros', icon: 'ri-information-line', label: 'Sobre Nosotros', path: '/dashboard/nosotros' },
+  // Menú completo - se filtra según el rol
+  const allMenuItems = [
+    { id: 'dashboard', icon: 'ri-dashboard-line', label: 'Dashboard', path: '/dashboard', roles: ['Administrador', 'LiderGrupo', 'LiderSemillero', 'Profesor', 'Semillerista'] },
+    { id: 'grupos', icon: 'ri-team-line', label: 'Grupos', path: '/dashboard/grupos', roles: ['Administrador', 'LiderGrupo', 'Profesor'] },
+    { id: 'semilleros', icon: 'ri-team-fill', label: 'Semilleros', path: '/dashboard/semilleros', roles: ['Administrador', 'LiderSemillero', 'Profesor', 'Semillerista'] },
+    { id: 'integrantes', icon: 'ri-user-line', label: 'Integrantes', path: '/dashboard/integrantes', roles: ['Administrador', 'LiderGrupo', 'LiderSemillero', 'Profesor'] },
+    { id: 'certificados', icon: 'ri-award-line', label: 'Certificados', path: '/dashboard/certificados', roles: ['Administrador', 'LiderGrupo', 'LiderSemillero', 'Profesor', 'Semillerista'] },
+    { id: 'reportes', icon: 'ri-bar-chart-line', label: 'Reportes', path: '/dashboard/reportes', roles: ['Administrador'] },
+    { id: 'nosotros', icon: 'ri-information-line', label: 'Sobre Nosotros', path: '/dashboard/nosotros', roles: ['Administrador', 'LiderGrupo', 'LiderSemillero', 'Profesor', 'Semillerista'] },
   ];
+
+  // Filtrar menú según el rol del usuario
+  const menuItems = allMenuItems.filter(item => user?.role && item.roles.includes(user.role));
 
   const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(path + '/');
 

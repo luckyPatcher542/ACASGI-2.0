@@ -6,7 +6,7 @@ function NewIntegranteForm({ onSubmit, onCancel, groupNames, roles }: {
   onSubmit: (data: Omit<Integrante, 'id'>) => void;
   onCancel: () => void;
   groupNames: string[];
-  roles: ('Líder' | 'Coordinador' | 'Investigador' | 'Estudiante')[];
+  roles: ('Líder (Grupo)' | 'Líder (Semillero)' | 'Profesor' | 'Semillerista')[];
 }) {
   const [formData, setFormData] = useState({
     nombre: '',
@@ -14,10 +14,11 @@ function NewIntegranteForm({ onSubmit, onCancel, groupNames, roles }: {
     email: '',
     telefono: '',
     especialidad: '',
-    rol: (roles[0] || 'Estudiante') as 'Líder' | 'Coordinador' | 'Investigador' | 'Estudiante',
+    rol: (roles[0] || 'Semillerista') as 'Líder (Grupo)' | 'Líder (Semillero)' | 'Profesor' | 'Semillerista',
     grupo: groupNames[0] || '',
     fechaVinculacion: new Date().toISOString(),
-    iniciales: ''
+    iniciales: '',
+    afiliacion: { tipo: 'grupo' as const, id: '1' }
   });
 
   const handleSubmit = () => {
@@ -98,7 +99,7 @@ export default function IntegrantesSection() {
   const [integrantes, setIntegrantes] = useState<Integrante[]>([]);
   const [showNewForm, setShowNewForm] = useState(false);
 
-  const roles = ['Todos', 'Líder', 'Coordinador', 'Investigador', 'Estudiante'];
+  const roles = ['Todos', 'Líder (Grupo)', 'Líder (Semillero)', 'Profesor', 'Semillerista'];
   const groupNames = ['Todos', ...new Set(gruposData.map(g => g.nombre))];
 
   // Helper function to get initials from name
@@ -119,10 +120,10 @@ export default function IntegrantesSection() {
 
   const getRoleColor = (rol: string) => {
     switch(rol) {
-      case 'Líder': return 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200';
-      case 'Coordinador': return 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-200';
-      case 'Investigador': return 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200';
-      case 'Estudiante': return 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-200';
+      case 'Líder (Grupo)': return 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200';
+      case 'Líder (Semillero)': return 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-200';
+      case 'Profesor': return 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200';
+      case 'Semillerista': return 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-200';
       default: return 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200';
     }
   };
@@ -317,7 +318,7 @@ export default function IntegrantesSection() {
               onSubmit={handleCreateIntegrante}
               onCancel={() => setShowNewForm(false)}
               groupNames={groupNames.filter(g => g !== 'Todos')}
-              roles={roles.filter(r => r !== 'Todos') as ('Líder' | 'Coordinador' | 'Investigador' | 'Estudiante')[]}
+              roles={roles.filter(r => r !== 'Todos') as ('Líder (Grupo)' | 'Líder (Semillero)' | 'Profesor' | 'Semillerista')[]}
             />
           </div>
         </div>

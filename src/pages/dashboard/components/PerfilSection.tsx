@@ -1,14 +1,31 @@
 import { useState } from 'react';
+import { useAuth } from '../../../router/AuthContext';
 
 export default function PerfilSection() {
+  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  
+  // Mapeo de información según el rol
+  const getRoleInfo = () => {
+    const roleInfoMap: { [key: string]: { telefono: string; departamento: string; fechaIngreso: string } } = {
+      'Administrador': { telefono: '6652828 Ext: 3301', departamento: 'Decanato Asociado de Investigaciones', fechaIngreso: '2023-01-15' },
+      'LiderGrupo': { telefono: '6652828 Ext: 3302', departamento: 'Liderazgo de Grupo', fechaIngreso: '2023-06-15' },
+      'LiderSemillero': { telefono: '6652828 Ext: 3303', departamento: 'Liderazgo de Semillero', fechaIngreso: '2023-07-15' },
+      'Profesor': { telefono: '6652828 Ext: 3304', departamento: 'Docencia', fechaIngreso: '2023-08-15' },
+      'Semillerista': { telefono: '6652828 Ext: 3305', departamento: 'Semillero de Investigación', fechaIngreso: '2023-09-15' }
+    };
+    return user?.role ? roleInfoMap[user.role] : roleInfoMap['Administrador'];
+  };
+  
+  const roleInfo = getRoleInfo();
+  
   const [profile, setProfile] = useState({
-    nombre: localStorage.getItem('userName') || 'Admin ACASGI',
-    email: localStorage.getItem('userEmail') || 'investigaciones@admon.uniajc.edu.co',
-    rol: localStorage.getItem('userRole') || 'Administrador',
-    telefono: '6652828 Ext: 3301',
-    departamento: 'Decanato Asociado de Investigaciones',
-    fechaIngreso: localStorage.getItem('userJoinDate') || '2023-01-15'
+    nombre: user?.name || 'Usuario',
+    email: user?.email || 'correo@ejemplo.com',
+    rol: user?.role || 'Administrador',
+    telefono: roleInfo?.telefono || '6652828 Ext: 3301',
+    departamento: roleInfo?.departamento || 'Decanato Asociado de Investigaciones',
+    fechaIngreso: roleInfo?.fechaIngreso || '2023-01-15'
   });
 
   const [formData, setFormData] = useState(profile);

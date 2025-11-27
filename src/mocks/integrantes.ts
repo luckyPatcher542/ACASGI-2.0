@@ -1,7 +1,7 @@
 export interface Integrante {
   id: string;
   nombre: string;
-  rol: 'Líder' | 'Coordinador' | 'Investigador' | 'Estudiante';
+  rol: 'Líder (Grupo)' | 'Líder (Semillero)' | 'Profesor' | 'Semillerista';
   cedula: string;
   email: string;
   telefono: string;
@@ -10,111 +10,124 @@ export interface Integrante {
   semillero?: string;
   fechaVinculacion: string;
   iniciales: string;
+  // cambio por roles: agregar afiliacion para filtros basados en permisos
+  afiliacion: {
+    tipo: 'grupo' | 'semillero';
+    id: string;
+  };
 }
 
 export const integrantesData: Integrante[] = [
-  // Líderes
+  // Líderes de Grupos
   {
     id: 'int1',
     nombre: 'Dr. Carlos Mendoza',
-    rol: 'Líder',
+    rol: 'Líder (Grupo)',
     cedula: '1001234567',
     email: 'carlos.mendoza@acasgi.org',
     telefono: '3001234567',
     especialidad: 'Inteligencia Artificial',
     grupo: '1',
     fechaVinculacion: '2021-03-01',
-    iniciales: 'CM'
+    iniciales: 'CM',
+    afiliacion: { tipo: 'grupo', id: '1' }
   },
   {
     id: 'int2',
     nombre: 'Ing. Ana García',
-    rol: 'Líder',
+    rol: 'Líder (Grupo)',
     cedula: '1001234568',
     email: 'ana.garcia@acasgi.org',
     telefono: '3001234568',
     especialidad: 'Robótica',
     grupo: '2',
     fechaVinculacion: '2021-06-01',
-    iniciales: 'AG'
+    iniciales: 'AG',
+    afiliacion: { tipo: 'grupo', id: '2' }
   },
   {
     id: 'int3',
     nombre: 'Ing. Juan López',
-    rol: 'Líder',
+    rol: 'Líder (Grupo)',
     cedula: '1001234569',
     email: 'juan.lopez@acasgi.org',
     telefono: '3001234569',
     especialidad: 'Desarrollo de Software',
     grupo: '3',
     fechaVinculacion: '2020-09-01',
-    iniciales: 'JL'
+    iniciales: 'JL',
+    afiliacion: { tipo: 'grupo', id: '3' }
   },
   {
     id: 'int4',
     nombre: 'Dra. María Rodríguez',
-    rol: 'Líder',
+    rol: 'Líder (Grupo)',
     cedula: '1001234570',
     email: 'maria.rodriguez@acasgi.org',
     telefono: '3001234570',
     especialidad: 'Biotecnología',
     grupo: '4',
     fechaVinculacion: '2021-01-01',
-    iniciales: 'MR'
+    iniciales: 'MR',
+    afiliacion: { tipo: 'grupo', id: '4' }
   },
   {
     id: 'int5',
     nombre: 'Ing. Pedro Sánchez',
-    rol: 'Líder',
+    rol: 'Líder (Grupo)',
     cedula: '1001234571',
     email: 'pedro.sanchez@acasgi.org',
     telefono: '3001234571',
     especialidad: 'Energías Renovables',
     grupo: '5',
     fechaVinculacion: '2022-02-01',
-    iniciales: 'PS'
+    iniciales: 'PS',
+    afiliacion: { tipo: 'grupo', id: '5' }
   },
   {
     id: 'int6',
     nombre: 'Dr. Fernando Díaz',
-    rol: 'Líder',
+    rol: 'Líder (Grupo)',
     cedula: '1001234572',
     email: 'fernando.diaz@acasgi.org',
     telefono: '3001234572',
     especialidad: 'Ciencias Sociales',
     grupo: '6',
     fechaVinculacion: '2021-05-01',
-    iniciales: 'FD'
+    iniciales: 'FD',
+    afiliacion: { tipo: 'grupo', id: '6' }
   },
   {
     id: 'int7',
     nombre: 'Dr. Andrés Gómez',
-    rol: 'Líder',
+    rol: 'Líder (Grupo)',
     cedula: '1001234573',
     email: 'andres.gomez@acasgi.org',
     telefono: '3001234573',
     especialidad: 'Matemáticas',
     grupo: '7',
     fechaVinculacion: '2020-11-01',
-    iniciales: 'AG'
+    iniciales: 'AG',
+    afiliacion: { tipo: 'grupo', id: '7' }
   },
   {
     id: 'int8',
     nombre: 'Dra. Sandra López',
-    rol: 'Líder',
+    rol: 'Líder (Grupo)',
     cedula: '1001234574',
     email: 'sandra.lopez@acasgi.org',
     telefono: '3001234574',
     especialidad: 'Química Ambiental',
     grupo: '8',
     fechaVinculacion: '2022-04-01',
-    iniciales: 'SL'
+    iniciales: 'SL',
+    afiliacion: { tipo: 'grupo', id: '8' }
   },
-  // Coordinadores
+  // Líderes de Semilleros
   {
     id: 'int9',
     nombre: 'Mg. Luis Martínez',
-    rol: 'Coordinador',
+    rol: 'Líder (Semillero)',
     cedula: '1001234575',
     email: 'luis.martinez@acasgi.org',
     telefono: '3001234575',
@@ -122,12 +135,13 @@ export const integrantesData: Integrante[] = [
     grupo: '1',
     semillero: 's1',
     fechaVinculacion: '2021-04-01',
-    iniciales: 'LM'
+    iniciales: 'LM',
+    afiliacion: { tipo: 'semillero', id: 's1' }
   },
   {
     id: 'int10',
     nombre: 'Ing. Roberto Silva',
-    rol: 'Coordinador',
+    rol: 'Líder (Semillero)',
     cedula: '1001234576',
     email: 'roberto.silva@acasgi.org',
     telefono: '3001234576',
@@ -135,12 +149,13 @@ export const integrantesData: Integrante[] = [
     grupo: '1',
     semillero: 's2',
     fechaVinculacion: '2021-08-01',
-    iniciales: 'RS'
+    iniciales: 'RS',
+    afiliacion: { tipo: 'semillero', id: 's2' }
   },
   {
     id: 'int11',
     nombre: 'Ing. Mauricio Blanco',
-    rol: 'Coordinador',
+    rol: 'Líder (Semillero)',
     cedula: '1001234577',
     email: 'mauricio.blanco@acasgi.org',
     telefono: '3001234577',
@@ -148,12 +163,13 @@ export const integrantesData: Integrante[] = [
     grupo: '2',
     semillero: 's3',
     fechaVinculacion: '2021-07-01',
-    iniciales: 'MB'
+    iniciales: 'MB',
+    afiliacion: { tipo: 'semillero', id: 's3' }
   },
   {
     id: 'int12',
     nombre: 'Ing. Carlos Ruiz',
-    rol: 'Coordinador',
+    rol: 'Líder (Semillero)',
     cedula: '1001234578',
     email: 'carlos.ruiz@acasgi.org',
     telefono: '3001234578',
@@ -161,12 +177,13 @@ export const integrantesData: Integrante[] = [
     grupo: '2',
     semillero: 's4',
     fechaVinculacion: '2022-01-01',
-    iniciales: 'CR'
+    iniciales: 'CR',
+    afiliacion: { tipo: 'semillero', id: 's4' }
   },
   {
     id: 'int13',
     nombre: 'Ing. Patricia González',
-    rol: 'Coordinador',
+    rol: 'Líder (Semillero)',
     cedula: '1001234579',
     email: 'patricia.gonzalez@acasgi.org',
     telefono: '3001234579',
@@ -174,12 +191,14 @@ export const integrantesData: Integrante[] = [
     grupo: '3',
     semillero: 's5',
     fechaVinculacion: '2020-10-01',
-    iniciales: 'PG'
+    iniciales: 'PG',
+    afiliacion: { tipo: 'semillero', id: 's5' }
   },
+  // Profesores y Semilleristas
   {
     id: 'int14',
     nombre: 'Ing. Daniel Torres',
-    rol: 'Coordinador',
+    rol: 'Profesor',
     cedula: '1001234580',
     email: 'daniel.torres@acasgi.org',
     telefono: '3001234580',
@@ -187,12 +206,13 @@ export const integrantesData: Integrante[] = [
     grupo: '3',
     semillero: 's6',
     fechaVinculacion: '2021-09-01',
-    iniciales: 'DT'
+    iniciales: 'DT',
+    afiliacion: { tipo: 'grupo', id: '3' }
   },
   {
     id: 'int15',
     nombre: 'Ing. Mariana Pérez',
-    rol: 'Coordinador',
+    rol: 'Profesor',
     cedula: '1001234581',
     email: 'mariana.perez@acasgi.org',
     telefono: '3001234581',
@@ -200,12 +220,13 @@ export const integrantesData: Integrante[] = [
     grupo: '3',
     semillero: 's7',
     fechaVinculacion: '2022-03-01',
-    iniciales: 'MP'
+    iniciales: 'MP',
+    afiliacion: { tipo: 'grupo', id: '3' }
   },
   {
     id: 'int16',
     nombre: 'Dra. Elena Castro',
-    rol: 'Coordinador',
+    rol: 'Profesor',
     cedula: '1001234582',
     email: 'elena.castro@acasgi.org',
     telefono: '3001234582',
@@ -213,12 +234,13 @@ export const integrantesData: Integrante[] = [
     grupo: '4',
     semillero: 's8',
     fechaVinculacion: '2021-02-01',
-    iniciales: 'EC'
+    iniciales: 'EC',
+    afiliacion: { tipo: 'grupo', id: '4' }
   },
   {
     id: 'int17',
     nombre: 'Dr. Javier Hernández',
-    rol: 'Coordinador',
+    rol: 'Semillerista',
     cedula: '1001234583',
     email: 'javier.hernandez@acasgi.org',
     telefono: '3001234583',
@@ -226,13 +248,13 @@ export const integrantesData: Integrante[] = [
     grupo: '4',
     semillero: 's9',
     fechaVinculacion: '2021-11-01',
-    iniciales: 'JH'
+    iniciales: 'JH',
+    afiliacion: { tipo: 'semillero', id: 's9' }
   },
-  // Investigadores
   {
     id: 'int18',
     nombre: 'Ing. Alejandra Morales',
-    rol: 'Investigador',
+    rol: 'Semillerista',
     cedula: '1001234584',
     email: 'alejandra.morales@acasgi.org',
     telefono: '3001234584',
@@ -240,12 +262,13 @@ export const integrantesData: Integrante[] = [
     grupo: '1',
     semillero: 's1',
     fechaVinculacion: '2021-06-01',
-    iniciales: 'AM'
+    iniciales: 'AM',
+    afiliacion: { tipo: 'semillero', id: 's1' }
   },
   {
     id: 'int19',
     nombre: 'Ing. Édgar Ramírez',
-    rol: 'Investigador',
+    rol: 'Semillerista',
     cedula: '1001234585',
     email: 'edgar.ramirez@acasgi.org',
     telefono: '3001234585',
@@ -253,12 +276,13 @@ export const integrantesData: Integrante[] = [
     grupo: '1',
     semillero: 's1',
     fechaVinculacion: '2021-07-01',
-    iniciales: 'ER'
+    iniciales: 'ER',
+    afiliacion: { tipo: 'semillero', id: 's1' }
   },
   {
     id: 'int20',
     nombre: 'Ing. Fabiana Rodríguez',
-    rol: 'Investigador',
+    rol: 'Semillerista',
     cedula: '1001234586',
     email: 'fabiana.rodriguez@acasgi.org',
     telefono: '3001234586',
@@ -266,12 +290,13 @@ export const integrantesData: Integrante[] = [
     grupo: '1',
     semillero: 's2',
     fechaVinculacion: '2021-09-01',
-    iniciales: 'FR'
+    iniciales: 'FR',
+    afiliacion: { tipo: 'semillero', id: 's2' }
   },
   {
     id: 'int21',
     nombre: 'Ing. Guillermo Vargas',
-    rol: 'Investigador',
+    rol: 'Semillerista',
     cedula: '1001234587',
     email: 'guillermo.vargas@acasgi.org',
     telefono: '3001234587',
@@ -279,12 +304,13 @@ export const integrantesData: Integrante[] = [
     grupo: '2',
     semillero: 's3',
     fechaVinculacion: '2021-08-01',
-    iniciales: 'GV'
+    iniciales: 'GV',
+    afiliacion: { tipo: 'semillero', id: 's3' }
   },
   {
     id: 'int22',
     nombre: 'Ing. Heidi Soto',
-    rol: 'Investigador',
+    rol: 'Semillerista',
     cedula: '1001234588',
     email: 'heidi.soto@acasgi.org',
     telefono: '3001234588',
@@ -292,12 +318,13 @@ export const integrantesData: Integrante[] = [
     grupo: '2',
     semillero: 's4',
     fechaVinculacion: '2022-02-01',
-    iniciales: 'HS'
+    iniciales: 'HS',
+    afiliacion: { tipo: 'semillero', id: 's4' }
   },
   {
     id: 'int23',
     nombre: 'Ing. Igor Santana',
-    rol: 'Investigador',
+    rol: 'Semillerista',
     cedula: '1001234589',
     email: 'igor.santana@acasgi.org',
     telefono: '3001234589',
@@ -305,13 +332,13 @@ export const integrantesData: Integrante[] = [
     grupo: '3',
     semillero: 's5',
     fechaVinculacion: '2021-01-01',
-    iniciales: 'IS'
+    iniciales: 'IS',
+    afiliacion: { tipo: 'semillero', id: 's5' }
   },
-  // Estudiantes (más cantidad)
   {
     id: 'int24',
     nombre: 'Estudiante Juanita Peña',
-    rol: 'Estudiante',
+    rol: 'Semillerista',
     cedula: '1001234590',
     email: 'juanita.pena@acasgi.org',
     telefono: '3001234590',
@@ -319,12 +346,13 @@ export const integrantesData: Integrante[] = [
     grupo: '1',
     semillero: 's1',
     fechaVinculacion: '2023-01-15',
-    iniciales: 'JP'
+    iniciales: 'JP',
+    afiliacion: { tipo: 'semillero', id: 's1' }
   },
   {
     id: 'int25',
     nombre: 'Estudiante Kevin López',
-    rol: 'Estudiante',
+    rol: 'Semillerista',
     cedula: '1001234591',
     email: 'kevin.lopez@acasgi.org',
     telefono: '3001234591',
@@ -332,12 +360,13 @@ export const integrantesData: Integrante[] = [
     grupo: '1',
     semillero: 's1',
     fechaVinculacion: '2023-02-10',
-    iniciales: 'KL'
+    iniciales: 'KL',
+    afiliacion: { tipo: 'semillero', id: 's1' }
   },
   {
     id: 'int26',
     nombre: 'Estudiante Lucía Martínez',
-    rol: 'Estudiante',
+    rol: 'Semillerista',
     cedula: '1001234592',
     email: 'lucia.martinez@acasgi.org',
     telefono: '3001234592',
@@ -345,12 +374,13 @@ export const integrantesData: Integrante[] = [
     grupo: '1',
     semillero: 's2',
     fechaVinculacion: '2023-03-05',
-    iniciales: 'LM'
+    iniciales: 'LM',
+    afiliacion: { tipo: 'semillero', id: 's2' }
   },
   {
     id: 'int27',
     nombre: 'Estudiante Mauricio Gómez',
-    rol: 'Estudiante',
+    rol: 'Semillerista',
     cedula: '1001234593',
     email: 'mauricio.gomez@acasgi.org',
     telefono: '3001234593',
@@ -358,12 +388,13 @@ export const integrantesData: Integrante[] = [
     grupo: '2',
     semillero: 's3',
     fechaVinculacion: '2023-01-20',
-    iniciales: 'MG'
+    iniciales: 'MG',
+    afiliacion: { tipo: 'semillero', id: 's3' }
   },
   {
     id: 'int28',
     nombre: 'Estudiante Natalia Vargas',
-    rol: 'Estudiante',
+    rol: 'Semillerista',
     cedula: '1001234594',
     email: 'natalia.vargas@acasgi.org',
     telefono: '3001234594',
@@ -371,12 +402,13 @@ export const integrantesData: Integrante[] = [
     grupo: '2',
     semillero: 's4',
     fechaVinculacion: '2023-02-15',
-    iniciales: 'NV'
+    iniciales: 'NV',
+    afiliacion: { tipo: 'semillero', id: 's4' }
   },
   {
     id: 'int29',
     nombre: 'Estudiante Óscar Reyes',
-    rol: 'Estudiante',
+    rol: 'Semillerista',
     cedula: '1001234595',
     email: 'oscar.reyes@acasgi.org',
     telefono: '3001234595',
@@ -384,12 +416,13 @@ export const integrantesData: Integrante[] = [
     grupo: '3',
     semillero: 's5',
     fechaVinculacion: '2023-01-10',
-    iniciales: 'OR'
+    iniciales: 'OR',
+    afiliacion: { tipo: 'semillero', id: 's5' }
   },
   {
     id: 'int30',
     nombre: 'Estudiante Paula Díaz',
-    rol: 'Estudiante',
+    rol: 'Semillerista',
     cedula: '1001234596',
     email: 'paula.diaz@acasgi.org',
     telefono: '3001234596',
@@ -397,12 +430,13 @@ export const integrantesData: Integrante[] = [
     grupo: '3',
     semillero: 's6',
     fechaVinculacion: '2023-02-20',
-    iniciales: 'PD'
+    iniciales: 'PD',
+    afiliacion: { tipo: 'semillero', id: 's6' }
   },
   {
     id: 'int31',
     nombre: 'Estudiante Quentin Torres',
-    rol: 'Estudiante',
+    rol: 'Semillerista',
     cedula: '1001234597',
     email: 'quentin.torres@acasgi.org',
     telefono: '3001234597',
@@ -410,12 +444,13 @@ export const integrantesData: Integrante[] = [
     grupo: '3',
     semillero: 's7',
     fechaVinculacion: '2023-03-01',
-    iniciales: 'QT'
+    iniciales: 'QT',
+    afiliacion: { tipo: 'semillero', id: 's7' }
   },
   {
     id: 'int32',
     nombre: 'Estudiante Raquel Flores',
-    rol: 'Estudiante',
+    rol: 'Semillerista',
     cedula: '1001234598',
     email: 'raquel.flores@acasgi.org',
     telefono: '3001234598',
@@ -423,12 +458,13 @@ export const integrantesData: Integrante[] = [
     grupo: '4',
     semillero: 's8',
     fechaVinculacion: '2023-01-25',
-    iniciales: 'RF'
+    iniciales: 'RF',
+    afiliacion: { tipo: 'semillero', id: 's8' }
   },
   {
     id: 'int33',
     nombre: 'Estudiante Samuel García',
-    rol: 'Estudiante',
+    rol: 'Semillerista',
     cedula: '1001234599',
     email: 'samuel.garcia@acasgi.org',
     telefono: '3001234599',
@@ -436,72 +472,21 @@ export const integrantesData: Integrante[] = [
     grupo: '4',
     semillero: 's9',
     fechaVinculacion: '2023-02-18',
-    iniciales: 'SG'
+    iniciales: 'SG',
+    afiliacion: { tipo: 'semillero', id: 's9' }
   },
-  {
-    id: 'int34',
-    nombre: 'Estudiante Teresa Moreno',
-    rol: 'Estudiante',
-    cedula: '1001234600',
-    email: 'teresa.moreno@acasgi.org',
-    telefono: '3001234600',
-    especialidad: 'Ingeniería Ambiental',
-    grupo: '5',
-    semillero: 's10',
-    fechaVinculacion: '2023-03-10',
-    iniciales: 'TM'
-  },
-  {
-    id: 'int35',
-    nombre: 'Estudiante Ulises Vargas',
-    rol: 'Estudiante',
-    cedula: '1001234601',
-    email: 'ulises.vargas@acasgi.org',
-    telefono: '3001234601',
-    especialidad: 'Ingeniería Ambiental',
-    grupo: '5',
-    semillero: 's11',
-    fechaVinculacion: '2023-01-30',
-    iniciales: 'UV'
-  },
-  {
-    id: 'int36',
-    nombre: 'Estudiante Valentina Sánchez',
-    rol: 'Estudiante',
-    cedula: '1001234602',
-    email: 'valentina.sanchez@acasgi.org',
-    telefono: '3001234602',
-    especialidad: 'Sociología',
-    grupo: '6',
-    semillero: 's12',
-    fechaVinculacion: '2023-02-05',
-    iniciales: 'VS'
-  },
-  {
-    id: 'int37',
-    nombre: 'Estudiante Wilmer Suárez',
-    rol: 'Estudiante',
-    cedula: '1001234603',
-    email: 'wilmer.suarez@acasgi.org',
-    telefono: '3001234603',
-    especialidad: 'Sociología',
-    grupo: '6',
-    semillero: 's13',
-    fechaVinculacion: '2023-03-08',
-    iniciales: 'WS'
-  },
-  // Agrego más estudiantes para llegar a 127
-  ...Array.from({ length: 113 }, (_, i) => ({
-    id: `int${38 + i}`,
+  ...Array.from({ length: 67 }, (_, i) => ({
+    id: `int${34 + i}`,
     nombre: `Estudiante ${['Xavier', 'Yolanda', 'Zara', 'Ángel', 'Beatriz', 'Camilo'][i % 6]} ${['Acosta', 'Benítez', 'Carrillo', 'Dávila', 'Escobar'][i % 5]}`,
-    rol: 'Estudiante' as const,
-    cedula: `100123${4604 + i}`.substring(0, 11),
+    rol: 'Semillerista' as const,
+    cedula: `100123${4600 + i}`.substring(0, 11),
     email: `estudiante${i}@acasgi.org`,
-    telefono: `300123${4604 + i}`.substring(0, 10),
+    telefono: `300123${4600 + i}`.substring(0, 10),
     especialidad: ['Ingeniería de Sistemas', 'Ingeniería Electrónica', 'Biología', 'Ingeniería Ambiental', 'Sociología'][i % 5],
     grupo: String(((i % 8) + 1)),
-    semillero: i < 50 ? `s${(i % 15) + 1}` : undefined,
+    semillero: `s${(i % 15) + 1}`,
     fechaVinculacion: `2023-${String((i % 12) + 1).padStart(2, '0')}-${String((i % 28) + 1).padStart(2, '0')}`,
-    iniciales: 'XX'
+    iniciales: 'XX',
+    afiliacion: { tipo: 'semillero' as const, id: `s${(i % 15) + 1}` }
   }))
 ];

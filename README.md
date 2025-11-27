@@ -76,8 +76,36 @@ npm run build
 
 ## 🔐 Credenciales de Prueba
 
+Sistema de roles con 5 niveles de acceso:
+
+### Administrador (acceso total)
 - **Email**: `admin@acasgi.org`
 - **Contraseña**: `admin123`
+- **Permisos**: Ver todo, sin afiliación específica
+
+### Líder de Grupo (grupo específico)
+- **Email**: `lidergrupo@acasgi.org`
+- **Contraseña**: `liderg123`
+- **Afiliación**: Grupo ID "1"
+- **Permisos**: Solo su grupo, sin Semilleros ni Reportes
+
+### Líder de Semillero (semillero específico)
+- **Email**: `lidersemillero@acasgi.org`
+- **Contraseña**: `liders123`
+- **Afiliación**: Semillero ID "s1"
+- **Permisos**: Solo su semillero, sin Grupos ni Reportes
+
+### Profesor (grupo o semillero)
+- **Email**: `profesor@acasgi.org`
+- **Contraseña**: `prof123`
+- **Afiliación**: Grupo ID "1"
+- **Permisos**: Su grupo/semillero, sin Reportes
+
+### Semillerista (semillero específico)
+- **Email**: `semillerista@acasgi.org`
+- **Contraseña**: `sem123`
+- **Afiliación**: Semillero ID "s1"
+- **Permisos**: Solo su semillero
 
 ## 📁 Estructura del Proyecto
 

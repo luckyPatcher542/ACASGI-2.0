@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { semillerosData, Semillero } from '../../../mocks/semilleros';
 import { gruposData } from '../../../mocks/grupos';
+import { createStatusChangeNotification } from '../../../mocks/notifications';
 
 export default function SemillerosSection() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -45,6 +46,10 @@ export default function SemillerosSection() {
           ? { ...s, estado: nuevoEstado }
           : s
       ));
+      
+      // Crear notificación
+      createStatusChangeNotification(statusChangeSemillero.nombre, 'seedbed', nuevoEstado);
+      
       alert(`Semillero ${nuevoEstado === 'Activo' ? 'activado' : 'inactivado'} correctamente.\nMotivo: ${statusChangeReason}`);
       setShowStatusModal(false);
       setStatusChangeSemillero(null);

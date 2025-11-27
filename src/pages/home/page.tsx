@@ -84,7 +84,7 @@ export default function HomePage() {
               <span>127+ Integrantes</span>
             </div>
             <div className="flex items-center gap-2 bg-white bg-opacity-20 px-4 py-2 rounded-full">
-              <i className="ri-plant-line text-xl"></i>
+              <i className="ri-team-fill text-xl"></i>
               <span>15 Semilleros Activos</span>
             </div>
             <div className="flex items-center gap-2 bg-white bg-opacity-20 px-4 py-2 rounded-full">
@@ -108,7 +108,7 @@ export default function HomePage() {
                 description: 'Administra grupos de investigación con toda la información centralizada'
               },
               {
-                icon: 'ri-plant-line',
+                icon: 'ri-team-fill',
                 title: 'Semilleros de Investigación',
                 description: 'Organiza y supervisa semilleros asociados a tus grupos'
               },
@@ -220,9 +220,9 @@ export default function HomePage() {
             <div>
               <h4 className="font-bold mb-4">Contacto</h4>
               <ul className="space-y-2 text-gray-400">
-                <li>Email: info@acasgi.org</li>
-                <li>Teléfono: +57 (1) 1234567</li>
-                <li>Colombia</li>
+                <li>Email: investigaciones@admon.uniajc.edu.co</li>
+                <li>Teléfono: 6652828 Ext: 3301</li>
+                <li>Av 6a N #28N - 102</li>
               </ul>
             </div>
             <div>
