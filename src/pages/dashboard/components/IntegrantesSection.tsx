@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Integrante } from '../../../mocks/integrantes';
 import { gruposData } from '../../../mocks/grupos';
+import { useAuth } from '../../../router/AuthContext';
 
 function NewIntegranteForm({ onSubmit, onCancel, groupNames, roles }: {
   onSubmit: (data: Omit<Integrante, 'id'>) => void;
@@ -92,10 +93,11 @@ function NewIntegranteForm({ onSubmit, onCancel, groupNames, roles }: {
 }
 
 export default function IntegrantesSection() {
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRole, setSelectedRole] = useState('Todos');
   const [selectedGroup, setSelectedGroup] = useState('Todos');
-  const [selectedIntegrante, setSelectedIntegrante] = useState<Integrante | null>(null);
+  const [selectedIntegrante, setSelectedIntegrante] = useState<any>(null);
   const [integrantes, setIntegrantes] = useState<Integrante[]>([]);
   const [showNewForm, setShowNewForm] = useState(false);
 
@@ -150,10 +152,12 @@ export default function IntegrantesSection() {
         <div>
           <p className="text-gray-600 dark:text-gray-400 text-sm">{filteredIntegrantes.length} integrantes encontrados</p>
         </div>
-        <button onClick={() => setShowNewForm(true)} className="btn-success flex items-center gap-2">
-          <i className="ri-add-line text-xl"></i>
-          Nuevo Integrante
-        </button>
+        {user?.role === 'Administrador' && (
+          <button onClick={() => setShowNewForm(true)} className="btn-success flex items-center gap-2">
+            <i className="ri-add-line text-xl"></i>
+            Nuevo Integrante
+          </button>
+        )}
       </div>
 
       {/* Filters */}

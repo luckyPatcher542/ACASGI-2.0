@@ -17,7 +17,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <i className="ri-graduation-cap-line text-3xl text-blue-500"></i>
-            <span className="text-2xl font-pacifico text-blue-600 dark:text-blue-400">ACASGI</span>
+            <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">ACASGI</span>
           </div>
           <nav className="hidden md:flex gap-6 items-center">
             <button onClick={() => handleScroll('features')} className="hover:text-blue-500 transition">
@@ -53,7 +53,7 @@ export default function HomePage() {
         </div>
         
         <div className="relative max-w-7xl mx-auto px-6 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 font-pacifico drop-shadow-lg">
+          <h1 className="text-4xl md:text-6xl font-bold mb-4 drop-shadow-lg">
             ACASGI
           </h1>
           <h2 className="text-xl md:text-3xl font-semibold mb-6 drop-shadow-lg">
@@ -140,8 +140,8 @@ export default function HomePage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
-              { number: '8', label: 'Grupos de Investigación', icon: 'ri-team-fill' },
-              { number: '15', label: 'Semilleros Activos', icon: 'ri-plant-fill' },
+              { number: '8', label: 'Grupos de Investigación', icon: 'ri-team-line' },
+              { number: '15', label: 'Semilleros Activos', icon: 'ri-team-fill' },
               { number: '127', label: 'Integrantes Activos', icon: 'ri-user-fill' },
               { number: '45', label: 'Certificados Emitidos', icon: 'ri-award-fill' }
             ].map((stat, i) => (
@@ -205,7 +205,7 @@ export default function HomePage() {
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <i className="ri-graduation-cap-line text-2xl"></i>
-                <span className="font-pacifico text-xl">ACASGI</span>
+                <span className="font-bold text-xl">ACASGI</span>
               </div>
               <p className="text-gray-400">Fomentando la investigación en Colombia</p>
             </div>
@@ -228,7 +228,7 @@ export default function HomePage() {
             <div>
               <h4 className="font-bold mb-4">Redes Sociales</h4>
               <div className="flex gap-4">
-                <a href="#" className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-blue-600 transition">
+                <a href="https://www.facebook.com/decanatodeinvestigacionesuniajc/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-blue-600 transition">
                   <i className="ri-facebook-line"></i>
                 </a>
                 <a href="#" className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-blue-400 transition">

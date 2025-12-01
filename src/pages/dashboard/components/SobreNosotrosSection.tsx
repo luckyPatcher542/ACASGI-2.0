@@ -30,7 +30,7 @@ const teamMembers = [
   {
     id: '3',
   nombre: 'Gilmar Yarlina Cuero Hurtado',
-  cargo: 'Auxiliar Administrativo',
+  cargo: 'Auxiliar Administrativa',
   email: 'aux_inv1@admon.uniajc.edu.co',
   telefono: '+6026652828',
   extension: '3304',
@@ -309,6 +309,19 @@ export default function SobreNosotrosSection() {
                 (602) 6652828
               </a>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Development Credits */}
+      <div className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 rounded-xl p-8 border-l-4 border-blue-500">
+        <div className="flex items-start gap-4">
+          <i className="ri-code-s-slash-line text-3xl text-blue-500 flex-shrink-0 mt-1"></i>
+          <div>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Desarrollo</h3>
+            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+              Aplicativo en desarrollo por <span className="font-semibold text-blue-600 dark:text-blue-400">Gabriel Téllez Bedón</span> y <span className="font-semibold text-blue-600 dark:text-blue-400">Diego Armando Palacios Cruz</span> con acompañamiento de <span className="font-semibold text-blue-600 dark:text-blue-400">Smart Campus</span>.
+            </p>
           </div>
         </div>
       </div>

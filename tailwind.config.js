@@ -14,8 +14,8 @@ export default {
         dark: '#111827'
       },
       fontFamily: {
-        pacifico: ['Pacifico', 'cursive'],
-        sans: ['system-ui', 'sans-serif']
+        poppins: ['Poppins', 'sans-serif'],
+        sans: ['Poppins', 'sans-serif']
       }
     },
   },

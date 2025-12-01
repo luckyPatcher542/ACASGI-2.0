@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { gruposData, Grupo } from '../../../mocks/grupos';
 import { createStatusChangeNotification } from '../../../mocks/notifications';
+import { useAuth } from '../../../router/AuthContext';
 
 function NewGroupForm({ onSubmit, onCancel, faculties }: { 
   onSubmit: (data: Omit<Grupo, 'id'>) => void;
@@ -56,6 +57,7 @@ function NewGroupForm({ onSubmit, onCancel, faculties }: {
 }
 
 export default function GruposSection() {
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Todos');
   const [selectedStatus, setSelectedStatus] = useState('Todos');
@@ -139,10 +141,12 @@ export default function GruposSection() {
         <div>
           <p className="text-gray-600 dark:text-gray-400 text-sm">{filteredGroups.length} grupos encontrados</p>
         </div>
-        <button onClick={() => setShowNewGroupForm(true)} className="btn-primary flex items-center gap-2">
-          <i className="ri-add-line text-xl"></i>
-          Nuevo Grupo
-        </button>
+        {user?.role === 'Administrador' && (
+          <button onClick={() => setShowNewGroupForm(true)} className="btn-primary flex items-center gap-2">
+            <i className="ri-add-line text-xl"></i>
+            Nuevo Grupo
+          </button>
+        )}
       </div>
 
       {/* Filters */}
@@ -248,20 +252,24 @@ export default function GruposSection() {
                 >
                   Ver Detalles
                 </button>
-                <button onClick={() => handleEditGroup(group)} className="btn-yellow py-2 px-3 text-sm" title="Editar">
-                  <i className="ri-edit-line"></i>
-                </button>
-                <button 
-                  onClick={() => handleStatusChange(group)}
-                  className={`py-2 px-3 text-sm rounded-lg ${
-                    group.estado === 'Activo'
-                      ? 'btn-warning'
-                      : 'bg-green-600 text-white hover:bg-green-700'
-                  }`}
-                  title={group.estado === 'Activo' ? 'Inactivar' : 'Activar'}
-                >
-                  <i className={group.estado === 'Activo' ? 'ri-eye-off-line' : 'ri-eye-line'}></i>
-                </button>
+                {user?.role === 'Administrador' && (
+                  <>
+                    <button onClick={() => handleEditGroup(group)} className="btn-yellow py-2 px-3 text-sm" title="Editar">
+                      <i className="ri-edit-line"></i>
+                    </button>
+                    <button 
+                      onClick={() => handleStatusChange(group)}
+                      className={`py-2 px-3 text-sm rounded-lg ${
+                        group.estado === 'Activo'
+                          ? 'btn-warning'
+                          : 'bg-green-600 text-white hover:bg-green-700'
+                      }`}
+                      title={group.estado === 'Activo' ? 'Inactivar' : 'Activar'}
+                    >
+                      <i className={group.estado === 'Activo' ? 'ri-eye-off-line' : 'ri-eye-line'}></i>
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>
