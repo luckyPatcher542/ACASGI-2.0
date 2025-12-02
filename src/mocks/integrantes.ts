@@ -10,6 +10,7 @@ export interface Integrante {
   semillero?: string;
   fechaVinculacion: string;
   iniciales: string;
+  estado: 'Activo' | 'Inactivo';
   // cambio por roles: agregar afiliacion para filtros basados en permisos
   afiliacion: {
     tipo: 'grupo' | 'semillero';
@@ -30,6 +31,7 @@ export const integrantesData: Integrante[] = [
     grupo: '1',
     fechaVinculacion: '2021-03-01',
     iniciales: 'CM',
+    estado: 'Activo',
     afiliacion: { tipo: 'grupo', id: '1' }
   },
   {
@@ -43,6 +45,7 @@ export const integrantesData: Integrante[] = [
     grupo: '2',
     fechaVinculacion: '2021-06-01',
     iniciales: 'AG',
+    estado: 'Activo',
     afiliacion: { tipo: 'grupo', id: '2' }
   },
   {
@@ -56,6 +59,7 @@ export const integrantesData: Integrante[] = [
     grupo: '3',
     fechaVinculacion: '2020-09-01',
     iniciales: 'JL',
+    estado: 'Activo',
     afiliacion: { tipo: 'grupo', id: '3' }
   },
   {
@@ -69,6 +73,7 @@ export const integrantesData: Integrante[] = [
     grupo: '4',
     fechaVinculacion: '2021-01-01',
     iniciales: 'MR',
+    estado: 'Activo',
     afiliacion: { tipo: 'grupo', id: '4' }
   },
   {
@@ -82,6 +87,7 @@ export const integrantesData: Integrante[] = [
     grupo: '5',
     fechaVinculacion: '2022-02-01',
     iniciales: 'PS',
+    estado: 'Activo',
     afiliacion: { tipo: 'grupo', id: '5' }
   },
   {
@@ -95,6 +101,7 @@ export const integrantesData: Integrante[] = [
     grupo: '6',
     fechaVinculacion: '2021-05-01',
     iniciales: 'FD',
+    estado: 'Activo',
     afiliacion: { tipo: 'grupo', id: '6' }
   },
   {
@@ -108,6 +115,7 @@ export const integrantesData: Integrante[] = [
     grupo: '7',
     fechaVinculacion: '2020-11-01',
     iniciales: 'AG',
+    estado: 'Activo',
     afiliacion: { tipo: 'grupo', id: '7' }
   },
   {
@@ -121,6 +129,7 @@ export const integrantesData: Integrante[] = [
     grupo: '8',
     fechaVinculacion: '2022-04-01',
     iniciales: 'SL',
+    estado: 'Activo',
     afiliacion: { tipo: 'grupo', id: '8' }
   },
   // Líderes de Semilleros
@@ -136,6 +145,7 @@ export const integrantesData: Integrante[] = [
     semillero: 's1',
     fechaVinculacion: '2021-04-01',
     iniciales: 'LM',
+    estado: 'Activo',
     afiliacion: { tipo: 'semillero', id: 's1' }
   },
   {
@@ -150,6 +160,7 @@ export const integrantesData: Integrante[] = [
     semillero: 's2',
     fechaVinculacion: '2021-08-01',
     iniciales: 'RS',
+    estado: 'Activo',
     afiliacion: { tipo: 'semillero', id: 's2' }
   },
   {
@@ -164,6 +175,7 @@ export const integrantesData: Integrante[] = [
     semillero: 's3',
     fechaVinculacion: '2021-07-01',
     iniciales: 'MB',
+    estado: 'Activo',
     afiliacion: { tipo: 'semillero', id: 's3' }
   },
   {
@@ -178,6 +190,7 @@ export const integrantesData: Integrante[] = [
     semillero: 's4',
     fechaVinculacion: '2022-01-01',
     iniciales: 'CR',
+    estado: 'Activo',
     afiliacion: { tipo: 'semillero', id: 's4' }
   },
   {
@@ -192,6 +205,7 @@ export const integrantesData: Integrante[] = [
     semillero: 's5',
     fechaVinculacion: '2020-10-01',
     iniciales: 'PG',
+    estado: 'Activo',
     afiliacion: { tipo: 'semillero', id: 's5' }
   },
   // Profesores y Semilleristas
@@ -207,6 +221,7 @@ export const integrantesData: Integrante[] = [
     semillero: 's6',
     fechaVinculacion: '2021-09-01',
     iniciales: 'DT',
+    estado: 'Activo',
     afiliacion: { tipo: 'grupo', id: '3' }
   },
   {
@@ -221,6 +236,7 @@ export const integrantesData: Integrante[] = [
     semillero: 's7',
     fechaVinculacion: '2022-03-01',
     iniciales: 'MP',
+    estado: 'Activo',
     afiliacion: { tipo: 'grupo', id: '3' }
   },
   {
@@ -235,6 +251,7 @@ export const integrantesData: Integrante[] = [
     semillero: 's8',
     fechaVinculacion: '2021-02-01',
     iniciales: 'EC',
+    estado: 'Activo',
     afiliacion: { tipo: 'grupo', id: '4' }
   },
   {
@@ -249,6 +266,7 @@ export const integrantesData: Integrante[] = [
     semillero: 's9',
     fechaVinculacion: '2021-11-01',
     iniciales: 'JH',
+    estado: 'Activo',
     afiliacion: { tipo: 'semillero', id: 's9' }
   },
   {
@@ -263,6 +281,7 @@ export const integrantesData: Integrante[] = [
     semillero: 's1',
     fechaVinculacion: '2021-06-01',
     iniciales: 'AM',
+    estado: 'Activo',
     afiliacion: { tipo: 'semillero', id: 's1' }
   },
   {
@@ -277,6 +296,7 @@ export const integrantesData: Integrante[] = [
     semillero: 's1',
     fechaVinculacion: '2021-07-01',
     iniciales: 'ER',
+    estado: 'Activo',
     afiliacion: { tipo: 'semillero', id: 's1' }
   },
   {
@@ -291,6 +311,7 @@ export const integrantesData: Integrante[] = [
     semillero: 's2',
     fechaVinculacion: '2021-09-01',
     iniciales: 'FR',
+    estado: 'Activo',
     afiliacion: { tipo: 'semillero', id: 's2' }
   },
   {
@@ -305,6 +326,7 @@ export const integrantesData: Integrante[] = [
     semillero: 's3',
     fechaVinculacion: '2021-08-01',
     iniciales: 'GV',
+    estado: 'Activo',
     afiliacion: { tipo: 'semillero', id: 's3' }
   },
   {
@@ -319,6 +341,7 @@ export const integrantesData: Integrante[] = [
     semillero: 's4',
     fechaVinculacion: '2022-02-01',
     iniciales: 'HS',
+    estado: 'Activo',
     afiliacion: { tipo: 'semillero', id: 's4' }
   },
   {
@@ -333,6 +356,7 @@ export const integrantesData: Integrante[] = [
     semillero: 's5',
     fechaVinculacion: '2021-01-01',
     iniciales: 'IS',
+    estado: 'Activo',
     afiliacion: { tipo: 'semillero', id: 's5' }
   },
   {
@@ -347,6 +371,7 @@ export const integrantesData: Integrante[] = [
     semillero: 's1',
     fechaVinculacion: '2023-01-15',
     iniciales: 'JP',
+    estado: 'Activo',
     afiliacion: { tipo: 'semillero', id: 's1' }
   },
   {
@@ -361,6 +386,7 @@ export const integrantesData: Integrante[] = [
     semillero: 's1',
     fechaVinculacion: '2023-02-10',
     iniciales: 'KL',
+    estado: 'Activo',
     afiliacion: { tipo: 'semillero', id: 's1' }
   },
   {
@@ -375,6 +401,7 @@ export const integrantesData: Integrante[] = [
     semillero: 's2',
     fechaVinculacion: '2023-03-05',
     iniciales: 'LM',
+    estado: 'Activo',
     afiliacion: { tipo: 'semillero', id: 's2' }
   },
   {
@@ -389,6 +416,7 @@ export const integrantesData: Integrante[] = [
     semillero: 's3',
     fechaVinculacion: '2023-01-20',
     iniciales: 'MG',
+    estado: 'Activo',
     afiliacion: { tipo: 'semillero', id: 's3' }
   },
   {
@@ -403,6 +431,7 @@ export const integrantesData: Integrante[] = [
     semillero: 's4',
     fechaVinculacion: '2023-02-15',
     iniciales: 'NV',
+    estado: 'Activo',
     afiliacion: { tipo: 'semillero', id: 's4' }
   },
   {
@@ -417,6 +446,7 @@ export const integrantesData: Integrante[] = [
     semillero: 's5',
     fechaVinculacion: '2023-01-10',
     iniciales: 'OR',
+    estado: 'Activo',
     afiliacion: { tipo: 'semillero', id: 's5' }
   },
   {
@@ -431,6 +461,7 @@ export const integrantesData: Integrante[] = [
     semillero: 's6',
     fechaVinculacion: '2023-02-20',
     iniciales: 'PD',
+    estado: 'Activo',
     afiliacion: { tipo: 'semillero', id: 's6' }
   },
   {
@@ -445,6 +476,7 @@ export const integrantesData: Integrante[] = [
     semillero: 's7',
     fechaVinculacion: '2023-03-01',
     iniciales: 'QT',
+    estado: 'Activo',
     afiliacion: { tipo: 'semillero', id: 's7' }
   },
   {
@@ -459,6 +491,7 @@ export const integrantesData: Integrante[] = [
     semillero: 's8',
     fechaVinculacion: '2023-01-25',
     iniciales: 'RF',
+    estado: 'Activo',
     afiliacion: { tipo: 'semillero', id: 's8' }
   },
   {
@@ -473,6 +506,7 @@ export const integrantesData: Integrante[] = [
     semillero: 's9',
     fechaVinculacion: '2023-02-18',
     iniciales: 'SG',
+    estado: 'Activo',
     afiliacion: { tipo: 'semillero', id: 's9' }
   },
   ...Array.from({ length: 67 }, (_, i) => ({
@@ -487,6 +521,7 @@ export const integrantesData: Integrante[] = [
     semillero: `s${(i % 15) + 1}`,
     fechaVinculacion: `2023-${String((i % 12) + 1).padStart(2, '0')}-${String((i % 28) + 1).padStart(2, '0')}`,
     iniciales: 'XX',
+    estado: 'Activo' as 'Activo' | 'Inactivo',
     afiliacion: { tipo: 'semillero' as const, id: `s${(i % 15) + 1}` }
-  }))
+  })) as Integrante[]
 ];
