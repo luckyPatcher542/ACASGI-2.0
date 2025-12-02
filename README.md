@@ -305,6 +305,45 @@ El proyecto incluye datos mock realistas:
 - [ ] Sistema de comentarios
 - [ ] Búsqueda global mejorada
 
+## 📋 Actualización Integral - 2 de diciembre de 2025
+
+### Mejoras en Sección de Integrantes
+
+**Nueva Funcionalidad:**
+- ✅ **Editar Integrante**: Modal de edición con 7 campos editables (nombre, cedula, email, telefono, especialidad, rol, grupo)
+- ✅ **Inactivar Integrante**: Sistema de cambio de estado con modal de confirmación y motivo requerido
+- ✅ **Filtro de Estado**: Nueva columna de filtros para mostrar integrantes Activos, Inactivos o Todos
+- ✅ **Ocultamiento Automático**: Al inactivar un integrante, se oculta del panel (solo mostrado si filtro es "Inactivo")
+
+**Cambios Técnicos:**
+- Agregado campo `estado: 'Activo' | 'Inactivo'` a interfaz `Integrante`
+- Implementados handlers: `handleEditIntegrante()`, `handleSaveEdit()`, `handleStatusChange()`, `handleConfirmStatusChange()`
+- Modal de edición con validación de campos
+- Modal de cambio de estado con textarea para motivo (obligatorio)
+- Botones de editar/inactivar solo visibles para rol "Administrador"
+- Barra de filtros ahora tiene 5 columnas: Buscar, Rol, Grupo, Estado, Limpiar
+- Lógica de filtrado actualizada para incluir estado en criterios
+
+**Archivos Modificados:**
+- `src/mocks/integrantes.ts`: Agregado campo estado a todos los integrantes (127 registros)
+- `src/pages/dashboard/components/IntegrantesSection.tsx`: Implementación completa de editar, inactivar y filtros
+
+**Estado de Compilación:**
+- ✓ Build exitoso: 70 módulos, 4.80s
+- ✓ Sin errores TypeScript
+- ✓ Diseño responsive mantenido
+
+**Comportamiento:**
+```
+1. Crear integrante → Estado inicial: "Activo" (visible en panel por defecto)
+2. Editar integrante → Actualiza datos sin cambiar estado
+3. Inactivar integrante → Abre modal, pide motivo, cambia estado a "Inactivo"
+4. Filtro Estado = "Activo" (por defecto) → Solo muestra integrantes activos
+5. Filtro Estado = "Inactivo" → Solo muestra integrantes inactivos
+6. Filtro Estado = "Todos" → Muestra ambos estados
+7. Limpiar Filtros → Vuelve a estado por defecto (Activos)
+```
+
 ## 📝 Notas
 
 - Los datos mostrados son de prueba y se reinician al recargar la página
