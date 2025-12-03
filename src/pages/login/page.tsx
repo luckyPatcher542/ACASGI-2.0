@@ -34,7 +34,7 @@ export default function LoginPage() {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full mb-4">
               <i className="ri-graduation-cap-line text-3xl text-white"></i>
             </div>
-            <h1 className="text-3xl font-pacifico text-blue-600 dark:text-blue-400">ACASGI</h1>
+            <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400">ACASGI</h1>
             <p className="text-gray-600 dark:text-gray-400 text-sm mt-2">
               Sistema de Gestión
             </p>

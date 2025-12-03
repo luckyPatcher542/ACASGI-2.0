@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { AppRouter } from './router/index';
 import { AuthProvider } from './router/AuthContext';
+import { LanguageProvider } from './router/LanguageContext';
+import { NotificationsProvider } from './router/NotificationsContext';
 
 function App() {
   useEffect(() => {
@@ -14,9 +16,13 @@ function App() {
 
   return (
     <Router>
-      <AuthProvider>
-        <AppRouter />
-      </AuthProvider>
+      <LanguageProvider>
+        <NotificationsProvider>
+          <AuthProvider>
+            <AppRouter />
+          </AuthProvider>
+        </NotificationsProvider>
+      </LanguageProvider>
     </Router>
   );
 }

@@ -17,7 +17,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <i className="ri-graduation-cap-line text-3xl text-blue-500"></i>
-            <span className="text-2xl font-pacifico text-blue-600 dark:text-blue-400">ACASGI</span>
+            <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">ACASGI</span>
           </div>
           <nav className="hidden md:flex gap-6 items-center">
             <button onClick={() => handleScroll('features')} className="hover:text-blue-500 transition">
@@ -53,7 +53,7 @@ export default function HomePage() {
         </div>
         
         <div className="relative max-w-7xl mx-auto px-6 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 font-pacifico drop-shadow-lg">
+          <h1 className="text-4xl md:text-6xl font-bold mb-4 drop-shadow-lg">
             ACASGI
           </h1>
           <h2 className="text-xl md:text-3xl font-semibold mb-6 drop-shadow-lg">
@@ -84,7 +84,7 @@ export default function HomePage() {
               <span>127+ Integrantes</span>
             </div>
             <div className="flex items-center gap-2 bg-white bg-opacity-20 px-4 py-2 rounded-full">
-              <i className="ri-plant-line text-xl"></i>
+              <i className="ri-team-fill text-xl"></i>
               <span>15 Semilleros Activos</span>
             </div>
             <div className="flex items-center gap-2 bg-white bg-opacity-20 px-4 py-2 rounded-full">
@@ -108,7 +108,7 @@ export default function HomePage() {
                 description: 'Administra grupos de investigación con toda la información centralizada'
               },
               {
-                icon: 'ri-plant-line',
+                icon: 'ri-team-fill',
                 title: 'Semilleros de Investigación',
                 description: 'Organiza y supervisa semilleros asociados a tus grupos'
               },
@@ -140,8 +140,8 @@ export default function HomePage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
-              { number: '8', label: 'Grupos de Investigación', icon: 'ri-team-fill' },
-              { number: '15', label: 'Semilleros Activos', icon: 'ri-plant-fill' },
+              { number: '8', label: 'Grupos de Investigación', icon: 'ri-team-line' },
+              { number: '15', label: 'Semilleros Activos', icon: 'ri-team-fill' },
               { number: '127', label: 'Integrantes Activos', icon: 'ri-user-fill' },
               { number: '45', label: 'Certificados Emitidos', icon: 'ri-award-fill' }
             ].map((stat, i) => (
@@ -205,7 +205,7 @@ export default function HomePage() {
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <i className="ri-graduation-cap-line text-2xl"></i>
-                <span className="font-pacifico text-xl">ACASGI</span>
+                <span className="font-bold text-xl">ACASGI</span>
               </div>
               <p className="text-gray-400">Fomentando la investigación en Colombia</p>
             </div>
@@ -220,15 +220,15 @@ export default function HomePage() {
             <div>
               <h4 className="font-bold mb-4">Contacto</h4>
               <ul className="space-y-2 text-gray-400">
-                <li>Email: info@acasgi.org</li>
-                <li>Teléfono: +57 (1) 1234567</li>
-                <li>Colombia</li>
+                <li>Email: investigaciones@admon.uniajc.edu.co</li>
+                <li>Teléfono: 6652828 Ext: 3301</li>
+                <li>Av 6a N #28N - 102</li>
               </ul>
             </div>
             <div>
               <h4 className="font-bold mb-4">Redes Sociales</h4>
               <div className="flex gap-4">
-                <a href="#" className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-blue-600 transition">
+                <a href="https://www.facebook.com/decanatodeinvestigacionesuniajc/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-blue-600 transition">
                   <i className="ri-facebook-line"></i>
                 </a>
                 <a href="#" className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-blue-400 transition">

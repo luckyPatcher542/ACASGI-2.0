@@ -1,4 +1,89 @@
-import { equipoData } from '../../../mocks/equipo';
+import Juan from "../fotos/Juan.png";
+import Jacque from "../fotos/Jacque.png";
+import Gilma from "../fotos/Gilma.png";
+import Danna from "../fotos/Danna.png";
+import Gabo from "../fotos/Gabo.png";
+import Gabi from "../fotos/Gabi.png";
+import Diego from "../fotos/Diego.png";
+
+
+const teamMembers = [
+  {
+    id: '1',
+  nombre: 'Juan Carlos Cruz Ardila',
+  cargo: 'Decano Asociado de Investigaciones',
+  email: 'jcarloscruz@admon.uniajc.edu.co',
+  telefono: '+6026652828',
+  extension: '3305',
+  foto: Juan
+
+  },
+  {
+    id: '2',
+  nombre: 'Jacqueline Díaz Rodriguez',
+  cargo: 'Técnica Administrativa de Investigaciones',
+  email: 'jdiazr@admon.uniajc.edu.co',
+  telefono: '+6026652828',
+  extension: '3305',
+  foto: Jacque
+  },
+  {
+    id: '3',
+  nombre: 'Gilmar Yarlina Cuero Hurtado',
+  cargo: 'Auxiliar Administrativa',
+  email: 'aux_inv1@admon.uniajc.edu.co',
+  telefono: '+6026652828',
+  extension: '3304',
+  foto: Gilma
+  },
+  {
+  id: '4',
+  nombre: 'Danna Vanessa Mancilla Aguilar',
+  cargo: 'Becaria de Investigaciones 1',
+  email: 'beca_inv1@admon.uniajc.edu.co',
+  telefono: '+6026652828',
+  extension: '3304',
+  foto: Danna
+  },
+  {
+    id: '5',
+  nombre: 'Gabriel Tellez Bedon',
+  cargo: 'Becario de Investigaciones 2',
+  email: 'beca_inv2@admon.uniajc.edu.co',
+  telefono: '+6026652828',
+  extension: '3304',
+  foto: Gabo
+  },
+  {
+    id: '6',
+  nombre: 'Gabriela Sofía Ruiz Castro',
+  cargo: 'Becaria de Investigaciones 3',
+  email: 'beca_inv3@admon.uniajc.edu.co',
+  telefono: '+6026652828',
+  extension: '3304',
+  foto: Gabi
+  },
+  {
+   id: '7',
+  nombre: 'Diego Armando Palacios Cruz',
+  cargo: 'Becario de Investigaciones 4',
+  email: 'beca_inv4@admon.uniajc.edu.co',
+  telefono: '+6026652828',
+  extension: '3304',
+  foto: Diego
+
+  },
+  {
+    id: '8',
+  nombre: 'Espacio para futuro becari@',
+  cargo: 'Becari@ de Investigaciones 5',
+  email: 'beca_inv5@admon.uniajc.edu.co',
+  telefono: '+6026652828',
+  extension: '3304',
+  foto: null
+
+  }
+];
 
 export default function SobreNosotrosSection() {
   return (
@@ -71,33 +156,51 @@ export default function SobreNosotrosSection() {
 
       {/* Team */}
       <div>
-        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Equipo Directivo</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {equipoData.map((member) => (
-            <div key={member.id} className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden card-shadow hover:shadow-2xl">
-              <div className="relative">
-                <img
-                  src={member.foto}
-                  alt={member.nombre}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 hover:opacity-100 transition flex items-end p-4">
-                  <div className="text-white">
-                    <p className="text-sm font-semibold">{member.nombre}</p>
-                    <p className="text-xs opacity-90">{member.cargo}</p>
-                  </div>
+        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Equipo de Investigaciones</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {teamMembers.map((member) => (
+            <div key={member.id} className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 flex flex-col h-full">
+              {/* Photo Container */}
+              <div className="w-full h-56 bg-gradient-to-br from-blue-50 via-blue-100 to-purple-100 dark:from-gray-700 dark:via-gray-600 dark:to-gray-500 flex items-center justify-center border-b border-gray-100 dark:border-gray-700">
+                <div className="w-40 h-40 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-500 flex items-center justify-center shadow-md">
+                 <img
+  src={member.foto}
+  alt={member.nombre}
+  className="w-40 h-40 rounded-full object-cover shadow-md"
+/>
+
+
                 </div>
               </div>
-              <div className="p-4 text-center">
-                <h4 className="font-bold text-gray-900 dark:text-white">{member.nombre}</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{member.cargo}</p>
-                <a
-                  href={`mailto:${member.email}`}
-                  className="text-sm text-blue-600 dark:text-blue-400 hover:underline flex items-center justify-center gap-1"
-                >
-                  <i className="ri-mail-line"></i>
-                  Contactar
-                </a>
+
+              {/* Card Content */}
+              <div className="p-6 text-center flex flex-col flex-1">
+                <h4 className="font-bold text-gray-900 dark:text-white mb-2 text-base leading-tight">{member.nombre}</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 leading-relaxed font-medium">{member.cargo}</p>
+
+                {/* Contact Links */}
+                <div className="space-y-3 mt-auto">
+                  <div>
+                    <a
+                      href={`mailto:${member.email}`}
+                      className="flex items-center justify-center gap-2 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors py-2 px-3 rounded-lg bg-blue-50 dark:bg-gray-700/50 hover:bg-blue-100 dark:hover:bg-gray-700 break-words"
+                      title={member.email}
+                    >
+                      <i className="ri-mail-line text-sm flex-shrink-0"></i>
+                      <span className="line-clamp-1">{member.email}</span>
+                    </a>
+                  </div>
+                  <div>
+                    <a
+                      href={`tel:${member.telefono}`}
+                      className="flex items-center justify-center gap-2 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors py-2 px-3 rounded-lg bg-blue-50 dark:bg-gray-700/50 hover:bg-blue-100 dark:hover:bg-gray-700"
+                      title={`${member.telefono} ext. ${member.extension}`}
+                    >
+                      <i className="ri-phone-line text-sm flex-shrink-0"></i>
+                      <span>{member.telefono} ext. {member.extension}</span>
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
           ))}
@@ -186,22 +289,39 @@ export default function SobreNosotrosSection() {
             <i className="ri-map-pin-line text-2xl text-blue-500 flex-shrink-0 mt-1"></i>
             <div>
               <h4 className="font-bold text-gray-900 dark:text-white">Ubicación</h4>
-              <p className="text-gray-600 dark:text-gray-400">Bogotá, Colombia</p>
+              <p className="text-gray-600 dark:text-gray-400">Av 6a N #28N - 102</p>
             </div>
           </div>
           <div className="flex gap-4">
             <i className="ri-mail-line text-2xl text-blue-500 flex-shrink-0 mt-1"></i>
             <div>
               <h4 className="font-bold text-gray-900 dark:text-white">Email</h4>
-              <p className="text-gray-600 dark:text-gray-400">info@acasgi.org</p>
+              <a href="mailto:investigaciones@admon.uniajc.edu.co" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                investigaciones@admon.uniajc.edu.co
+              </a>
             </div>
           </div>
           <div className="flex gap-4">
             <i className="ri-phone-line text-2xl text-blue-500 flex-shrink-0 mt-1"></i>
             <div>
               <h4 className="font-bold text-gray-900 dark:text-white">Teléfono</h4>
-              <p className="text-gray-600 dark:text-gray-400">+57 (1) 1234567</p>
+              <a href="tel:+6026652828" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                (602) 6652828
+              </a>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Development Credits */}
+      <div className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 rounded-xl p-8 border-l-4 border-blue-500">
+        <div className="flex items-start gap-4">
+          <i className="ri-code-s-slash-line text-3xl text-blue-500 flex-shrink-0 mt-1"></i>
+          <div>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Desarrollo</h3>
+            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+              Aplicativo en desarrollo por <span className="font-semibold text-blue-600 dark:text-blue-400">Gabriel Téllez Bedón</span> y <span className="font-semibold text-blue-600 dark:text-blue-400">Diego Armando Palacios Cruz</span> con acompañamiento de <span className="font-semibold text-blue-600 dark:text-blue-400">Smart Campus</span>.
+            </p>
           </div>
         </div>
       </div>

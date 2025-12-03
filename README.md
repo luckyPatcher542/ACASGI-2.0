@@ -76,8 +76,36 @@ npm run build
 
 ## 🔐 Credenciales de Prueba
 
+Sistema de roles con 5 niveles de acceso:
+
+### Administrador (acceso total)
 - **Email**: `admin@acasgi.org`
 - **Contraseña**: `admin123`
+- **Permisos**: Ver todo, sin afiliación específica
+
+### Líder de Grupo (grupo específico)
+- **Email**: `lidergrupo@acasgi.org`
+- **Contraseña**: `liderg123`
+- **Afiliación**: Grupo ID "1"
+- **Permisos**: Solo su grupo, sin Semilleros ni Reportes
+
+### Líder de Semillero (semillero específico)
+- **Email**: `lidersemillero@acasgi.org`
+- **Contraseña**: `liders123`
+- **Afiliación**: Semillero ID "s1"
+- **Permisos**: Solo su semillero, sin Grupos ni Reportes
+
+### Profesor (grupo o semillero)
+- **Email**: `profesor@acasgi.org`
+- **Contraseña**: `prof123`
+- **Afiliación**: Grupo ID "1"
+- **Permisos**: Su grupo/semillero, sin Reportes
+
+### Semillerista (semillero específico)
+- **Email**: `semillerista@acasgi.org`
+- **Contraseña**: `sem123`
+- **Afiliación**: Semillero ID "s1"
+- **Permisos**: Solo su semillero
 
 ## 📁 Estructura del Proyecto
 
@@ -139,6 +167,97 @@ src/
 - Código de verificación único
 - Espacios para firmas
 
+### Actualización - Sección Sobre Nosotros (27 de noviembre de 2025)
+
+- Se agregaron las fotos reales del equipo en la sección Sobre Nosotros.
+- Se estilizaron las tarjetas con mejores sombras, centrado de texto y estructura visual.
+- Se corrigió la visualización del correo/teléfono para todos los roles.
+- Se reorganizó la importación de imágenes desde la carpeta dashboard/fotos.
+- Se corrigió redirección de logout y visualización por roles.
+
+### Actualización Integral - 1 de diciembre de 2025
+
+#### 🔤 Tipografía Global (Poppins)
+- **Migración completa de Pacifico a Poppins**
+  - Importación de Google Fonts con variantes 400, 500, 600, 700
+  - Configuración de Tailwind para fuente por defecto: Poppins
+  - Aplicado globalmente a todos los componentes, formularios, botones y tarjetas
+  - Compilación exitosa: 70 módulos sin errores
+
+#### 📋 Funcionalidad de Semilleros (CRUD Completo)
+- **Nuevo Semillero**
+  - Botón funcional en header (solo Admin)
+  - Modal con formulario: nombre, descripción, grupo padre, coordinador, integrantes
+  - Validación de datos
+  - Generación automática de ID único
+  - Cierre automático de modal al crear
+
+- **Editar Semillero**
+  - Botón en cada tarjeta de semillero (solo Admin)
+  - Modal con formulario pre-poblado
+  - Actualización inmediata en la lista
+  - Mismos campos que creación
+
+- **Cambiar Estado**
+  - Modal para activar/inactivar con motivo requerido
+  - Notificaciones de cambio
+  - Validación de motivo antes de confirmar
+
+#### 🔒 Control de Acceso Mejorado
+
+**GruposSection:**
+- ❌ Botón "Nuevo Grupo" → Solo Admin
+- ❌ Botón "Editar" en tarjeta → Solo Admin
+- ❌ Botón "Inactivar/Activar" → Solo Admin
+- ✅ Botón "Ver Detalles" → Todos los roles
+
+**SemillerosSection:**
+- ❌ Botón "Nuevo Semillero" → Solo Admin
+- ❌ Botón "Editar" en tarjeta → Solo Admin
+- ❌ Botón "Inactivar/Activar" → Solo Admin
+- ✅ Botón "Ver Detalles" → Todos los roles
+
+**Roles no-Admin:**
+- LiderGrupo
+- LiderSemillero
+- Profesor
+- Semillerista
+→ Pueden VER detalles, pero NO crear, editar ni cambiar estado
+
+#### 📊 Dashboard Reorganizado
+- ✅ Eliminación de sección "Reports" embebida en DashboardHome
+- ✅ Reports accesible desde Sidebar para TODOS los roles:
+  - Administrador ✓
+  - LiderGrupo ✓
+  - LiderSemillero ✓
+  - Profesor ✓
+  - Semillerista ✓
+- ✅ Mantenimiento de Acciones Rápidas filtradas por rol
+
+#### 👥 Créditos y Atribuciones
+- Agregación de texto en Sobre Nosotros:
+  "Aplicación desarrollada por Gabriel Téllez Bedón y Diego Armando Palacios Cruz con acompañamiento del Smart Campus"
+
+#### 📁 Archivos Modificados
+- `src/pages/dashboard/components/SemillerosSection.tsx` - Reescritura completa con CRUD
+- `src/pages/dashboard/components/GruposSection.tsx` - Ajustes de permisos
+- `src/pages/dashboard/components/DashboardHome.tsx` - Eliminación de Reports section
+- `src/pages/dashboard/components/Sidebar.tsx` - Actualización de visibilidad Reportes
+- `src/pages/dashboard/components/SobreNosotrosSection.tsx` - Agregación de créditos
+- `index.html` - Importación Google Fonts Poppins
+- `src/index.css` - Eliminación importación Pacifico
+- `tailwind.config.js` - Configuración Poppins como fuente por defecto
+- `src/pages/home/page.tsx` - Reemplazo font-pacifico por font-bold
+- `src/pages/login/page.tsx` - Reemplazo font-pacifico por font-bold
+
+#### ✅ Estado General
+- **Compilación:** 70 módulos transformados
+- **Build time:** ~3.98s
+- **Errores:** 0
+- **Warnings:** 0
+- **Rama:** Gabriel
+- **Último commit:** Actualización integral del proyecto ACASGI
+
 ## 🌙 Tema Claro/Oscuro
 
 El tema se controla mediante el toggle en el header. La preferencia se guarda automáticamente en localStorage.
@@ -185,6 +304,45 @@ El proyecto incluye datos mock realistas:
 - [ ] Notificaciones en tiempo real
 - [ ] Sistema de comentarios
 - [ ] Búsqueda global mejorada
+
+## 📋 Actualización Integral - 2 de diciembre de 2025
+
+### Mejoras en Sección de Integrantes
+
+**Nueva Funcionalidad:**
+- ✅ **Editar Integrante**: Modal de edición con 7 campos editables (nombre, cedula, email, telefono, especialidad, rol, grupo)
+- ✅ **Inactivar Integrante**: Sistema de cambio de estado con modal de confirmación y motivo requerido
+- ✅ **Filtro de Estado**: Nueva columna de filtros para mostrar integrantes Activos, Inactivos o Todos
+- ✅ **Ocultamiento Automático**: Al inactivar un integrante, se oculta del panel (solo mostrado si filtro es "Inactivo")
+
+**Cambios Técnicos:**
+- Agregado campo `estado: 'Activo' | 'Inactivo'` a interfaz `Integrante`
+- Implementados handlers: `handleEditIntegrante()`, `handleSaveEdit()`, `handleStatusChange()`, `handleConfirmStatusChange()`
+- Modal de edición con validación de campos
+- Modal de cambio de estado con textarea para motivo (obligatorio)
+- Botones de editar/inactivar solo visibles para rol "Administrador"
+- Barra de filtros ahora tiene 5 columnas: Buscar, Rol, Grupo, Estado, Limpiar
+- Lógica de filtrado actualizada para incluir estado en criterios
+
+**Archivos Modificados:**
+- `src/mocks/integrantes.ts`: Agregado campo estado a todos los integrantes (127 registros)
+- `src/pages/dashboard/components/IntegrantesSection.tsx`: Implementación completa de editar, inactivar y filtros
+
+**Estado de Compilación:**
+- ✓ Build exitoso: 70 módulos, 4.80s
+- ✓ Sin errores TypeScript
+- ✓ Diseño responsive mantenido
+
+**Comportamiento:**
+```
+1. Crear integrante → Estado inicial: "Activo" (visible en panel por defecto)
+2. Editar integrante → Actualiza datos sin cambiar estado
+3. Inactivar integrante → Abre modal, pide motivo, cambia estado a "Inactivo"
+4. Filtro Estado = "Activo" (por defecto) → Solo muestra integrantes activos
+5. Filtro Estado = "Inactivo" → Solo muestra integrantes inactivos
+6. Filtro Estado = "Todos" → Muestra ambos estados
+7. Limpiar Filtros → Vuelve a estado por defecto (Activos)
+```
 
 ## 📝 Notas
 
