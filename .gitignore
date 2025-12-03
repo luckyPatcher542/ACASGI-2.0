@@ -1,1 +1,7 @@
 node_modules/
+
+# Ignorar la carpeta de certificados
+certificados/
+
+# Ignorar el archivo .env
+.env
