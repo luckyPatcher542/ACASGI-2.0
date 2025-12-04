@@ -1,19 +1,85 @@
 import { useState, useMemo } from 'react';
 import { semillerosData, Semillero } from '../../../mocks/semilleros';
 import { gruposData } from '../../../mocks/grupos';
+import { createStatusChangeNotification } from '../../../mocks/notifications';
+import { useAuth } from '../../../router/AuthContext';
+
+function NewSemilleroForm({ onSubmit, onCancel, grupos }: { 
+  onSubmit: (data: Omit<Semillero, 'id'>) => void;
+  onCancel: () => void;
+  grupos: string[];
+}) {
+  const [formData, setFormData] = useState<Omit<Semillero, 'id'>>({
+    nombre: '',
+    descripcion: '',
+    grupoPadre: grupos[0] || '',
+    coordinador: '',
+    integrantes: 0,
+    estado: 'Activo',
+    fechaCreacion: new Date().toISOString()
+  });
+
+  return (
+    <div className="space-y-4">
+      <input
+        type="text"
+        value={formData.nombre}
+        onChange={(e) => setFormData({...formData, nombre: e.target.value})}
+        placeholder="Nombre del semillero"
+        className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+      />
+      <textarea
+        value={formData.descripcion}
+        onChange={(e) => setFormData({...formData, descripcion: e.target.value})}
+        placeholder="Descripción"
+        className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+      />
+      <select
+        value={formData.grupoPadre}
+        onChange={(e) => setFormData({...formData, grupoPadre: e.target.value})}
+        className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+      >
+        {grupos.map(g => <option key={g} value={g}>{gruposData.find(gr => gr.id === g)?.nombre || g}</option>)}
+      </select>
+      <input
+        type="text"
+        value={formData.coordinador}
+        onChange={(e) => setFormData({...formData, coordinador: e.target.value})}
+        placeholder="Coordinador"
+        className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+      />
+      <input
+        type="number"
+        value={formData.integrantes}
+        onChange={(e) => setFormData({...formData, integrantes: parseInt(e.target.value) || 0})}
+        placeholder="Integrantes"
+        className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+      />
+      <div className="flex gap-2">
+        <button onClick={() => onSubmit(formData)} className="flex-1 btn-primary py-2">Crear</button>
+        <button onClick={onCancel} className="flex-1 btn-ghost py-2">Cancelar</button>
+      </div>
+    </div>
+  );
+}
 
 export default function SemillerosSection() {
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFaculty, setSelectedFaculty] = useState('Todos');
   const [selectedStatus, setSelectedStatus] = useState('Todos');
   const [selectedSemillero, setSelectedSemillero] = useState<Semillero | null>(null);
   const [semilleros, setSemilleros] = useState(semillerosData);
+  const [editingSemillero, setEditingSemillero] = useState<Semillero | null>(null);
+  const [showNewSemilleroForm, setShowNewSemilleroForm] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [statusChangeReason, setStatusChangeReason] = useState('');
   const [statusChangeSemillero, setStatusChangeSemillero] = useState<Semillero | null>(null);
 
   const faculties = ['Todos', 'Ingeniería', 'Administración', 'Ciencias Humanas', 'Derecho', 'Medicina'];
   const statuses = ['Todos', 'Activo', 'Inactivo'];
+
+  const gruposIds = gruposData.map(g => g.id);
 
   const filteredSemilleros = useMemo(() => {
     return semilleros.filter(semillero => {
@@ -31,6 +97,26 @@ export default function SemillerosSection() {
     setSelectedStatus('Todos');
   };
 
+  const handleEditSemillero = (semillero: Semillero) => {
+    setEditingSemillero(semillero);
+  };
+
+  const handleSaveEdit = (updatedSemillero: Semillero) => {
+    setSemilleros(semilleros.map(s => 
+      s.id === updatedSemillero.id ? updatedSemillero : s
+    ));
+    setEditingSemillero(null);
+  };
+
+  const handleCreateSemillero = (newSemillero: Omit<Semillero, 'id'>) => {
+    const semillero: Semillero = {
+      ...newSemillero,
+      id: 'semillero_' + Date.now()
+    };
+    setSemilleros([...semilleros, semillero]);
+    setShowNewSemilleroForm(false);
+  };
+
   const handleStatusChange = (semillero: Semillero) => {
     setStatusChangeSemillero(semillero);
     setStatusChangeReason('');
@@ -45,6 +131,10 @@ export default function SemillerosSection() {
           ? { ...s, estado: nuevoEstado }
           : s
       ));
+      
+      // Crear notificación
+      createStatusChangeNotification(statusChangeSemillero.nombre, 'seedbed', nuevoEstado);
+      
       alert(`Semillero ${nuevoEstado === 'Activo' ? 'activado' : 'inactivado'} correctamente.\nMotivo: ${statusChangeReason}`);
       setShowStatusModal(false);
       setStatusChangeSemillero(null);
@@ -59,10 +149,12 @@ export default function SemillerosSection() {
         <div>
           <p className="text-gray-600 dark:text-gray-400 text-sm">{filteredSemilleros.length} semilleros encontrados</p>
         </div>
-        <button className="btn-secondary flex items-center gap-2">
-          <i className="ri-add-line text-xl"></i>
-          Nuevo Semillero
-        </button>
+        {user?.role === 'Administrador' && (
+          <button onClick={() => setShowNewSemilleroForm(true)} className="btn-primary flex items-center gap-2">
+            <i className="ri-add-line text-xl"></i>
+            Nuevo Semillero
+          </button>
+        )}
       </div>
 
       {/* Filters */}
@@ -126,7 +218,7 @@ export default function SemillerosSection() {
           const grupo = gruposData.find(g => g.id === semillero.grupoPadre);
           return (
             <div key={semillero.id} className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden card-shadow">
-              <div className="bg-gradient-to-r from-green-500 to-emerald-500 p-4 text-white">
+              <div className="bg-gradient-to-r from-blue-500 to-indigo-500 p-4 text-white">
                 <div className="flex items-start justify-between mb-2">
                   <i className="ri-team-fill text-3xl"></i>
                   <span className={`badge text-xs ${
@@ -166,20 +258,24 @@ export default function SemillerosSection() {
                   >
                     Ver Detalles
                   </button>
-                  <button className="btn-yellow py-2 px-3 text-sm">
-                    <i className="ri-edit-line"></i>
-                  </button>
-                  <button 
-                    onClick={() => handleStatusChange(semillero)}
-                    className={`py-2 px-3 text-sm rounded-lg ${
-                      semillero.estado === 'Activo'
-                        ? 'btn-warning'
-                        : 'bg-green-600 text-white hover:bg-green-700'
-                    }`}
-                    title={semillero.estado === 'Activo' ? 'Inactivar' : 'Activar'}
-                  >
-                    <i className={semillero.estado === 'Activo' ? 'ri-eye-off-line' : 'ri-eye-line'}></i>
-                  </button>
+                  {user?.role === 'Administrador' && (
+                    <>
+                      <button onClick={() => handleEditSemillero(semillero)} className="btn-yellow py-2 px-3 text-sm" title="Editar">
+                        <i className="ri-edit-line"></i>
+                      </button>
+                      <button 
+                        onClick={() => handleStatusChange(semillero)}
+                        className={`py-2 px-3 text-sm rounded-lg ${
+                          semillero.estado === 'Activo'
+                            ? 'btn-warning'
+                            : 'bg-green-600 text-white hover:bg-green-700'
+                        }`}
+                        title={semillero.estado === 'Activo' ? 'Inactivar' : 'Activar'}
+                      >
+                        <i className={semillero.estado === 'Activo' ? 'ri-eye-off-line' : 'ri-eye-line'}></i>
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -229,6 +325,62 @@ export default function SemillerosSection() {
               >
                 Cerrar
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* New Semillero Modal */}
+      {showNewSemilleroForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-xl max-w-2xl w-full max-h-96 overflow-y-auto p-6">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Nuevo Semillero</h2>
+            <NewSemilleroForm 
+              onSubmit={handleCreateSemillero}
+              onCancel={() => setShowNewSemilleroForm(false)}
+              grupos={gruposIds}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {editingSemillero && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-xl max-w-2xl w-full max-h-96 overflow-y-auto p-6">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Editar Semillero</h2>
+            <div className="space-y-4">
+              <input
+                type="text"
+                value={editingSemillero.nombre}
+                onChange={(e) => setEditingSemillero({...editingSemillero, nombre: e.target.value})}
+                placeholder="Nombre"
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              />
+              <textarea
+                value={editingSemillero.descripcion}
+                onChange={(e) => setEditingSemillero({...editingSemillero, descripcion: e.target.value})}
+                placeholder="Descripción"
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              />
+              <input
+                type="text"
+                value={editingSemillero.coordinador}
+                onChange={(e) => setEditingSemillero({...editingSemillero, coordinador: e.target.value})}
+                placeholder="Coordinador"
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              />
+              <input
+                type="number"
+                value={editingSemillero.integrantes}
+                onChange={(e) => setEditingSemillero({...editingSemillero, integrantes: parseInt(e.target.value) || 0})}
+                placeholder="Integrantes"
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              />
+              <div className="flex gap-2">
+                <button onClick={() => handleSaveEdit(editingSemillero)} className="flex-1 btn-primary py-2">Guardar</button>
+                <button onClick={() => setEditingSemillero(null)} className="flex-1 btn-ghost py-2">Cancelar</button>
+              </div>
             </div>
           </div>
         </div>

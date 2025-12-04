@@ -1,67 +1,307 @@
-import { useMemo } from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../router/AuthContext';
 import { gruposData } from '../../../mocks/grupos';
 import { semillerosData } from '../../../mocks/semilleros';
 import { integrantesData } from '../../../mocks/integrantes';
 import { certificadosData } from '../../../mocks/certificados';
+import { getNotifications } from '../../../mocks/notifications';
 
 export default function DashboardHome() {
-  // KPIs
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [notifications, setNotifications] = useState(getNotifications());
+
+  // Actualizar notificaciones cuando cambie algo
+  useEffect(() => {
+    const updateNotifications = () => {
+      setNotifications(getNotifications());
+    };
+
+    // Actualizar cada segundo para ver cambios en tiempo real
+    const interval = setInterval(updateNotifications, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // KPIs - Mismos para todos
   const totalGrupos = gruposData.length;
   const activeSemilleros = semillerosData.filter(s => s.estado === 'Activo').length;
   const totalIntegrantes = integrantesData.length;
   const totalCertificados = certificadosData.length;
 
-  // Actividad Reciente (simulada)
-  const recentActivities = [
+  // Actividad Reciente - Usar notificaciones del sistema o valores por defecto
+  const recentActivities = notifications.length > 0 ? notifications.slice(0, 5) : [
     {
       id: '1',
       icon: 'ri-user-add-line',
       description: 'Nuevo integrante agregado: Maria González',
       timestamp: 'Hace 2 horas',
-      type: 'member'
+      type: 'member' as const
     },
     {
       id: '2',
       icon: 'ri-award-line',
       description: 'Certificado emitido: Certificado de Adscripción',
       timestamp: 'Hace 5 horas',
-      type: 'certificate'
+      type: 'certificate' as const
     },
     {
       id: '3',
-      icon: 'ri-team-line',
+      icon: 'ri-team-fill',
       description: 'Nuevo grupo creado: Inteligencia Artificial',
       timestamp: 'Ayer',
-      type: 'group'
+      type: 'group' as const
     },
     {
       id: '4',
-      icon: 'ri-plant-line',
+      icon: 'ri-team-fill',
       description: 'Semillero actualizado: Deep Learning',
       timestamp: 'Hace 2 días',
-      type: 'seedbed'
+      type: 'seedbed' as const
     },
     {
       id: '5',
       icon: 'ri-bar-chart-line',
       description: 'Reporte mensual generado',
       timestamp: 'Hace 3 días',
-      type: 'report'
+      type: 'report' as const
     }
   ];
 
-  // Grupos destacados
-  const featuredGroups = useMemo(() => {
-    return gruposData.slice(0, 3);
-  }, []);
+  // Función para renderizar acciones rápidas según el rol
+  const renderQuickActions = () => {
+    switch (user?.role) {
+      case 'Administrador':
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <button
+              onClick={() => navigate('/dashboard/grupos')}
+              className="group relative bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-700 dark:to-gray-600 rounded-xl p-8 border border-blue-200 dark:border-gray-500 hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-400 transition-all duration-300 text-left overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600 opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
+              <div className="relative">
+                <div className="mb-4 inline-block p-3 bg-blue-100 dark:bg-gray-600 rounded-lg">
+                  <i className="ri-team-fill text-4xl text-blue-600 dark:text-blue-400"></i>
+                </div>
+                <h4 className="font-bold text-gray-900 dark:text-white mb-2 text-base">Grupos</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Visualiza y gestiona todos los grupos</p>
+              </div>
+            </button>
+
+            <button
+              onClick={() => navigate('/dashboard/semilleros')}
+              className="group relative bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-700 dark:to-gray-600 rounded-xl p-8 border border-blue-200 dark:border-gray-500 hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-400 transition-all duration-300 text-left overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600 opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
+              <div className="relative">
+                <div className="mb-4 inline-block p-3 bg-blue-100 dark:bg-gray-600 rounded-lg">
+                  <i className="ri-team-fill text-4xl text-blue-600 dark:text-blue-400"></i>
+                </div>
+                <h4 className="font-bold text-gray-900 dark:text-white mb-2 text-base">Semilleros</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Explora los semilleros de investigación</p>
+              </div>
+            </button>
+
+            <button
+              onClick={() => navigate('/dashboard/certificados')}
+              className="group relative bg-gradient-to-br from-purple-50 to-purple-100 dark:from-gray-700 dark:to-gray-600 rounded-xl p-8 border border-purple-200 dark:border-gray-500 hover:shadow-xl hover:border-purple-300 dark:hover:border-purple-400 transition-all duration-300 text-left overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-purple-600 opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
+              <div className="relative">
+                <div className="mb-4 inline-block p-3 bg-purple-100 dark:bg-gray-600 rounded-lg">
+                  <i className="ri-award-line text-4xl text-purple-600 dark:text-purple-400"></i>
+                </div>
+                <h4 className="font-bold text-gray-900 dark:text-white mb-2 text-base">Certificados</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Crea y descarga certificados</p>
+              </div>
+            </button>
+          </div>
+        );
+
+      case 'LiderGrupo':
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <button
+              onClick={() => navigate('/dashboard/grupos')}
+              className="group relative bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-700 dark:to-gray-600 rounded-xl p-8 border border-blue-200 dark:border-gray-500 hover:shadow-xl transition-all duration-300 text-left overflow-hidden"
+            >
+              <div className="relative">
+                <div className="mb-4 inline-block p-3 bg-blue-100 dark:bg-gray-600 rounded-lg">
+                  <i className="ri-team-fill text-4xl text-blue-600 dark:text-blue-400"></i>
+                </div>
+                <h4 className="font-bold text-gray-900 dark:text-white mb-2 text-base">Ver Grupo</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Información del grupo</p>
+              </div>
+            </button>
+
+            <button
+              onClick={() => navigate('/dashboard/integrantes')}
+              className="group relative bg-gradient-to-br from-purple-50 to-purple-100 dark:from-gray-700 dark:to-gray-600 rounded-xl p-8 border border-purple-200 dark:border-gray-500 hover:shadow-xl transition-all duration-300 text-left overflow-hidden"
+            >
+              <div className="relative">
+                <div className="mb-4 inline-block p-3 bg-purple-100 dark:bg-gray-600 rounded-lg">
+                  <i className="ri-user-fill text-4xl text-purple-600 dark:text-purple-400"></i>
+                </div>
+                <h4 className="font-bold text-gray-900 dark:text-white mb-2 text-base">Ver Integrantes</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Gestiona tu equipo</p>
+              </div>
+            </button>
+
+            <button
+              onClick={() => navigate('/dashboard/certificados')}
+              className="group relative bg-gradient-to-br from-green-50 to-green-100 dark:from-gray-700 dark:to-gray-600 rounded-xl p-8 border border-green-200 dark:border-gray-500 hover:shadow-xl transition-all duration-300 text-left overflow-hidden"
+            >
+              <div className="relative">
+                <div className="mb-4 inline-block p-3 bg-green-100 dark:bg-gray-600 rounded-lg">
+                  <i className="ri-award-line text-4xl text-green-600 dark:text-green-400"></i>
+                </div>
+                <h4 className="font-bold text-gray-900 dark:text-white mb-2 text-base">Ver Certificados</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Certificados emitidos</p>
+              </div>
+            </button>
+          </div>
+        );
+
+      case 'LiderSemillero':
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <button
+              onClick={() => navigate('/dashboard/semilleros')}
+              className="group relative bg-gradient-to-br from-green-50 to-green-100 dark:from-gray-700 dark:to-gray-600 rounded-xl p-8 border border-green-200 dark:border-gray-500 hover:shadow-xl transition-all duration-300 text-left overflow-hidden"
+            >
+              <div className="relative">
+                <div className="mb-4 inline-block p-3 bg-green-100 dark:bg-gray-600 rounded-lg">
+                  <i className="ri-team-fill text-4xl text-green-600 dark:text-green-400"></i>
+                </div>
+                <h4 className="font-bold text-gray-900 dark:text-white mb-2 text-base">Ver Semillero</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Información del semillero</p>
+              </div>
+            </button>
+
+            <button
+              onClick={() => navigate('/dashboard/integrantes')}
+              className="group relative bg-gradient-to-br from-purple-50 to-purple-100 dark:from-gray-700 dark:to-gray-600 rounded-xl p-8 border border-purple-200 dark:border-gray-500 hover:shadow-xl transition-all duration-300 text-left overflow-hidden"
+            >
+              <div className="relative">
+                <div className="mb-4 inline-block p-3 bg-purple-100 dark:bg-gray-600 rounded-lg">
+                  <i className="ri-user-fill text-4xl text-purple-600 dark:text-purple-400"></i>
+                </div>
+                <h4 className="font-bold text-gray-900 dark:text-white mb-2 text-base">Ver Integrantes</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Gestiona tu equipo</p>
+              </div>
+            </button>
+
+            <button
+              onClick={() => navigate('/dashboard/certificados')}
+              className="group relative bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-700 dark:to-gray-600 rounded-xl p-8 border border-blue-200 dark:border-gray-500 hover:shadow-xl transition-all duration-300 text-left overflow-hidden"
+            >
+              <div className="relative">
+                <div className="mb-4 inline-block p-3 bg-blue-100 dark:bg-gray-600 rounded-lg">
+                  <i className="ri-award-line text-4xl text-blue-600 dark:text-blue-400"></i>
+                </div>
+                <h4 className="font-bold text-gray-900 dark:text-white mb-2 text-base">Ver Certificados</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Certificados emitidos</p>
+              </div>
+            </button>
+          </div>
+        );
+
+      case 'Profesor':
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <button
+              onClick={() => navigate('/dashboard/grupos')}
+              className="group relative bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-700 dark:to-gray-600 rounded-xl p-6 border border-blue-200 dark:border-gray-500 hover:shadow-lg transition-all duration-300 text-left overflow-hidden"
+            >
+              <div className="relative">
+                <div className="mb-3 inline-block p-2 bg-blue-100 dark:bg-gray-600 rounded-lg">
+                  <i className="ri-team-fill text-2xl text-blue-600 dark:text-blue-400"></i>
+                </div>
+                <h4 className="font-bold text-gray-900 dark:text-white text-sm">Ver Grupos</h4>
+              </div>
+            </button>
+
+            <button
+              onClick={() => navigate('/dashboard/semilleros')}
+              className="group relative bg-gradient-to-br from-green-50 to-green-100 dark:from-gray-700 dark:to-gray-600 rounded-xl p-6 border border-green-200 dark:border-gray-500 hover:shadow-lg transition-all duration-300 text-left overflow-hidden"
+            >
+              <div className="relative">
+                <div className="mb-3 inline-block p-2 bg-green-100 dark:bg-gray-600 rounded-lg">
+                  <i className="ri-team-fill text-2xl text-green-600 dark:text-green-400"></i>
+                </div>
+                <h4 className="font-bold text-gray-900 dark:text-white text-sm">Ver Semilleros</h4>
+              </div>
+            </button>
+
+            <button
+              onClick={() => navigate('/dashboard/integrantes')}
+              className="group relative bg-gradient-to-br from-purple-50 to-purple-100 dark:from-gray-700 dark:to-gray-600 rounded-xl p-6 border border-purple-200 dark:border-gray-500 hover:shadow-lg transition-all duration-300 text-left overflow-hidden"
+            >
+              <div className="relative">
+                <div className="mb-3 inline-block p-2 bg-purple-100 dark:bg-gray-600 rounded-lg">
+                  <i className="ri-user-fill text-2xl text-purple-600 dark:text-purple-400"></i>
+                </div>
+                <h4 className="font-bold text-gray-900 dark:text-white text-sm">Ver Integrantes</h4>
+              </div>
+            </button>
+
+            <button
+              onClick={() => navigate('/dashboard/certificados')}
+              className="group relative bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-gray-700 dark:to-gray-600 rounded-xl p-6 border border-yellow-200 dark:border-gray-500 hover:shadow-lg transition-all duration-300 text-left overflow-hidden"
+            >
+              <div className="relative">
+                <div className="mb-3 inline-block p-2 bg-yellow-100 dark:bg-gray-600 rounded-lg">
+                  <i className="ri-award-line text-2xl text-yellow-600 dark:text-yellow-400"></i>
+                </div>
+                <h4 className="font-bold text-gray-900 dark:text-white text-sm">Ver Certificados</h4>
+              </div>
+            </button>
+          </div>
+        );
+
+      case 'Semillerista':
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <button
+              onClick={() => navigate('/dashboard/semilleros')}
+              className="group relative bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-gray-700 dark:to-gray-600 rounded-xl p-8 border border-yellow-200 dark:border-gray-500 hover:shadow-xl transition-all duration-300 text-left overflow-hidden"
+            >
+              <div className="relative">
+                <div className="mb-4 inline-block p-3 bg-yellow-100 dark:bg-gray-600 rounded-lg">
+                  <i className="ri-team-fill text-4xl text-yellow-600 dark:text-yellow-400"></i>
+                </div>
+                <h4 className="font-bold text-gray-900 dark:text-white mb-2 text-base">Ver Semillero</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Información del semillero</p>
+              </div>
+            </button>
+
+            <button
+              onClick={() => navigate('/dashboard/certificados')}
+              className="group relative bg-gradient-to-br from-purple-50 to-purple-100 dark:from-gray-700 dark:to-gray-600 rounded-xl p-8 border border-purple-200 dark:border-gray-500 hover:shadow-xl transition-all duration-300 text-left overflow-hidden"
+            >
+              <div className="relative">
+                <div className="mb-4 inline-block p-3 bg-purple-100 dark:bg-gray-600 rounded-lg">
+                  <i className="ri-award-line text-4xl text-purple-600 dark:text-purple-400"></i>
+                </div>
+                <h4 className="font-bold text-gray-900 dark:text-white mb-2 text-base">Ver Certificados</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Certificados disponibles</p>
+              </div>
+            </button>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="space-y-6">
-      {/* KPIs Section */}
+      {/* KPIs Section - Visibles para todos */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
           {
-            label: 'Total Grupos',
+            label: 'Total de Grupos',
             value: totalGrupos,
             change: '+12%',
             icon: 'ri-team-fill',
@@ -71,11 +311,11 @@ export default function DashboardHome() {
             label: 'Semilleros Activos',
             value: activeSemilleros,
             change: '+8%',
-            icon: 'ri-plant-fill',
+            icon: 'ri-team-fill',
             color: 'green'
           },
           {
-            label: 'Integrantes',
+            label: 'Total Integrantes',
             value: totalIntegrantes,
             change: '+15%',
             icon: 'ri-user-fill',
@@ -118,7 +358,7 @@ export default function DashboardHome() {
         ))}
       </div>
 
-      {/* Charts Section */}
+      {/* Charts Section - Visibles para todos */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Growth Chart */}
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 card-shadow">
@@ -137,17 +377,18 @@ export default function DashboardHome() {
           </div>
         </div>
 
-        {/* Distribution Chart */}
+        {/* Distribution Chart - Roles reales del sistema */}
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 card-shadow">
           <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
             Distribución de Integrantes por Rol
           </h3>
           <div className="h-64 flex items-center justify-around">
             {[
-              { role: 'Líderes', count: 8, color: 'bg-blue-500', percentage: 6 },
-              { role: 'Coordinadores', count: 10, color: 'bg-purple-500', percentage: 8 },
-              { role: 'Investigadores', count: 19, color: 'bg-green-500', percentage: 15 },
-              { role: 'Estudiantes', count: 90, color: 'bg-yellow-500', percentage: 71 }
+              { role: 'Administrador', count: 1, color: 'bg-blue-500', percentage: 1 },
+              { role: 'Líder de Grupo', count: 4, color: 'bg-purple-500', percentage: 3 },
+              { role: 'Líder de Semillero', count: 5, color: 'bg-green-500', percentage: 4 },
+              { role: 'Profesor', count: 20, color: 'bg-yellow-500', percentage: 16 },
+              { role: 'Semillerista', count: 95, color: 'bg-indigo-500', percentage: 76 }
             ].map((item, i) => (
               <div key={i} className="flex flex-col items-center">
                 <div className="relative w-24 h-24 rounded-full flex items-center justify-center text-white font-bold">
@@ -164,7 +405,7 @@ export default function DashboardHome() {
         </div>
       </div>
 
-      {/* Activity and Featured Groups */}
+      {/* Activity and Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Activity */}
         <div className="lg:col-span-1 bg-white dark:bg-gray-800 rounded-xl p-6 card-shadow">
@@ -192,33 +433,12 @@ export default function DashboardHome() {
           </div>
         </div>
 
-        {/* Featured Groups */}
+        {/* Quick Actions - Filtradas por rol */}
         <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl p-6 card-shadow">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-            Grupos Destacados
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">
+            Acciones Rápidas
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {featuredGroups.map((group) => (
-              <div key={group.id} className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 rounded-lg p-4 border border-blue-200 dark:border-gray-600">
-                <div className="flex items-start justify-between mb-3">
-                  <i className="ri-team-fill text-2xl text-blue-500"></i>
-                  <span className={`badge ${
-                    group.estado === 'Activo'
-                      ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200'
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200'
-                  }`}>
-                    {group.estado}
-                  </span>
-                </div>
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2">{group.nombre}</h4>
-                <div className="space-y-1 text-xs text-gray-600 dark:text-gray-400 mb-3">
-                  <p>👥 {group.integrantes} integrantes</p>
-                  <p>🌱 {group.semilleros} semilleros</p>
-                </div>
-                <button className="w-full btn-primary py-2 text-sm">Ver Detalles</button>
-              </div>
-            ))}
-          </div>
+          {renderQuickActions()}
         </div>
       </div>
     </div>

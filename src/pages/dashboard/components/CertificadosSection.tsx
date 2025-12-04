@@ -269,6 +269,10 @@ export default function CertificadosSection() {
           <div className="bg-white dark:bg-gray-800 rounded-xl max-w-2xl w-full p-6">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Certificado de Adscripción</h2>
             
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 bg-blue-50 dark:bg-gray-700 p-4 rounded-lg">
+              El Certificado de Adscripción es un documento oficial que confirma que un integrante pertenece y está vinculado a un Grupo o Semillero de Investigación. Este certificado respalda la afiliación institucional para trámites académicos, convocatorias o procesos administrativos.
+            </p>
+            
             {!foundIntegrante ? (
               <div className="space-y-4">
                 <p className="text-gray-600 dark:text-gray-400">Ingresa la cédula del integrante para generar el certificado</p>
@@ -282,6 +286,13 @@ export default function CertificadosSection() {
                   />
                   <button onClick={handleSearchIntegrante} className="btn-primary px-6">
                     Buscar
+                  </button>
+                  <button onClick={() => {
+                    setShowAdsModal(false);
+                    setCedula('');
+                    setFoundIntegrante(null);
+                  }} className="btn-ghost px-6">
+                    Cancelar
                   </button>
                 </div>
               </div>
@@ -324,6 +335,9 @@ export default function CertificadosSection() {
                 <i className="ri-close-line text-2xl"></i>
               </button>
             </div>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 bg-blue-50 dark:bg-gray-700 p-4 rounded-lg">
+              El Certificado de Producto acredita la existencia y validez de un resultado de investigación, como artículos, ponencias, libros o desarrollos tecnológicos, asociado al Grupo o Semillero.
+            </p>
             <div className="text-center py-8">
               <i className="ri-time-line text-6xl text-gray-400 mb-4 block"></i>
               <p className="text-lg text-gray-600 dark:text-gray-400 font-semibold">Funcionalidad próximamente</p>
