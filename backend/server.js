@@ -5,6 +5,7 @@ import { conexion } from "./conexion.js";
 import certificadoRoutes from "./rutas/certificado.js";
 import semilleroRoutes from "./rutas/semillero.js";
 import grupoRoutes from "./rutas/grupo.js";
+import integranteRoutes from "./rutas/integrante.js";
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ conexion.getConnection((err, connection) => {
   app.use("/api/certificado", certificadoRoutes);
   app.use("/api/semillero", semilleroRoutes);
   app.use("/api/grupo", grupoRoutes);
+  app.use("/api/integrante", integranteRoutes);
 
   // ---------------------------------------------
   // 🧪 Ruta de prueba rápida

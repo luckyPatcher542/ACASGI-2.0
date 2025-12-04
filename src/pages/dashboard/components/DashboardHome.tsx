@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../router/AuthContext';
 import axios from 'axios';
-import { integrantesData } from '../../../mocks/integrantes';
 import { getNotifications } from '../../../mocks/notifications';
 
 export default function DashboardHome() {
@@ -12,6 +11,7 @@ export default function DashboardHome() {
   const [grupos, setGrupos] = useState<any[]>([]);
   const [semilleros, setSemilleros] = useState<any[]>([]);
   const [certificados, setCertificados] = useState<any[]>([]);
+  const [integrantes, setIntegrantes] = useState<any[]>([]);
 
   // Actualizar notificaciones cuando cambie algo
   useEffect(() => {
@@ -27,14 +27,16 @@ export default function DashboardHome() {
   useEffect(() => {
     const fetchKpis = async () => {
       try {
-        const [gRes, sRes, cRes] = await Promise.all([
+        const [gRes, sRes, cRes, iRes] = await Promise.all([
           axios.get('http://localhost:4000/api/grupo'),
           axios.get('http://localhost:4000/api/semillero'),
-          axios.get('http://localhost:4000/api/certificado')
+          axios.get('http://localhost:4000/api/certificado'),
+          axios.get('http://localhost:4000/api/integrante')
         ]);
         const gruposRows = Array.isArray(gRes.data) ? gRes.data : [];
         const semRows = Array.isArray(sRes.data) ? sRes.data : [];
         const certRows = Array.isArray(cRes.data) ? cRes.data : [];
+        const integrantesRows = Array.isArray(iRes.data) ? iRes.data : [];
 
         // Normalizar mínimamente para KPIs
         const normalizedGrupos = gruposRows.map((r: any) => ({
@@ -54,9 +56,16 @@ export default function DashboardHome() {
           id: String(r.ID_CERTIFICADO ?? r.id ?? ''),
         }));
 
+        const normalizedIntegrantes = integrantesRows.map((i: any) => ({
+          id: String(i.ID_PERSONA ?? i.id ?? ''),
+          nombre: i.NOMBRE ?? i.nombre ?? '',
+          apellido: i.APELLIDO ?? i.apellido ?? ''
+        }));
+
         setGrupos(normalizedGrupos);
         setSemilleros(normalizedSemilleros);
         setCertificados(normalizedCerts);
+        setIntegrantes(normalizedIntegrantes);
       } catch (err) {
         console.error('Error cargando KPIs:', err);
       }
@@ -67,7 +76,7 @@ export default function DashboardHome() {
   // KPIs - Mismos para todos
   const totalGrupos = grupos.length;
   const activeSemilleros = semilleros.filter(s => s.estado === 'Activo').length;
-  const totalIntegrantes = integrantesData.length;
+  const totalIntegrantes = integrantes.length;
   const totalCertificados = certificados.length;
 
   // Actividad Reciente - Usar notificaciones del sistema o valores por defecto

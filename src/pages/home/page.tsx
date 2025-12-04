@@ -1,9 +1,46 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 export default function HomePage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
+  const [stats, setStats] = useState({
+    grupos: 0,
+    semillerosActivos: 0,
+    integrantes: 0,
+    certificados: 0
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const [gruposRes, semillerosRes, integrantesRes, certificadosRes] = await Promise.all([
+          axios.get('http://localhost:4000/api/grupo'),
+          axios.get('http://localhost:4000/api/semillero'),
+          axios.get('http://localhost:4000/api/integrante'),
+          axios.get('http://localhost:4000/api/certificado')
+        ]);
+
+        const grupos = Array.isArray(gruposRes.data) ? gruposRes.data : [];
+        const semilleros = Array.isArray(semillerosRes.data) ? semillerosRes.data : [];
+        const integrantes = Array.isArray(integrantesRes.data) ? integrantesRes.data : [];
+        const certificados = Array.isArray(certificadosRes.data) ? certificadosRes.data : [];
+
+        const semillerosActivos = semilleros.filter((s: any) => s.ESTADO === 1 || s.ESTADO === '1').length;
+
+        setStats({
+          grupos: grupos.length,
+          semillerosActivos: semillerosActivos,
+          integrantes: integrantes.length,
+          certificados: certificados.length
+        });
+      } catch (err) {
+        console.error('Error cargando estadísticas:', err);
+      }
+    };
+    fetchStats();
+  }, []);
 
   const handleScroll = (elementId: string) => {
     const element = document.getElementById(elementId);
@@ -81,15 +118,15 @@ export default function HomePage() {
           <div className="flex gap-4 justify-center flex-wrap text-sm md:text-base">
             <div className="flex items-center gap-2 bg-white bg-opacity-20 px-4 py-2 rounded-full">
               <i className="ri-team-line text-xl"></i>
-              <span>127+ Integrantes</span>
+              <span>{stats.integrantes}+ Integrantes</span>
             </div>
             <div className="flex items-center gap-2 bg-white bg-opacity-20 px-4 py-2 rounded-full">
               <i className="ri-team-fill text-xl"></i>
-              <span>15 Semilleros Activos</span>
+              <span>{stats.semillerosActivos} Semilleros Activos</span>
             </div>
             <div className="flex items-center gap-2 bg-white bg-opacity-20 px-4 py-2 rounded-full">
               <i className="ri-award-line text-xl"></i>
-              <span>45+ Certificados</span>
+              <span>{stats.certificados}+ Certificados</span>
             </div>
           </div>
         </div>
@@ -140,10 +177,10 @@ export default function HomePage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
-              { number: '8', label: 'Grupos de Investigación', icon: 'ri-team-line' },
-              { number: '15', label: 'Semilleros Activos', icon: 'ri-team-fill' },
-              { number: '127', label: 'Integrantes Activos', icon: 'ri-user-fill' },
-              { number: '45', label: 'Certificados Emitidos', icon: 'ri-award-fill' }
+              { number: stats.grupos, label: 'Grupos de Investigación', icon: 'ri-team-line' },
+              { number: stats.semillerosActivos, label: 'Semilleros Activos', icon: 'ri-team-fill' },
+              { number: stats.integrantes, label: 'Integrantes Activos', icon: 'ri-user-fill' },
+              { number: stats.certificados, label: 'Certificados Emitidos', icon: 'ri-award-fill' }
             ].map((stat, i) => (
               <div key={i} className="text-center">
                 <i className={`${stat.icon} text-6xl text-gradient-acasgi bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent mb-4 inline-block`}></i>

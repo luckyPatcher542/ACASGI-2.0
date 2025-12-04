@@ -49,6 +49,38 @@ async function generarTRD() {
 }
 
 
+// =====================
+// BUSCAR PERSONA POR CÉDULA - AGREGADO (ubicado correctamente)
+// =====================
+// CORRECCIÓN: Endpoint para obtener datos de persona por cédula desde la BD
+router.get('/buscar-persona/:cedula', async (req, res) => {
+    try {
+        const { cedula } = req.params;
+        
+        const [rows] = await conexion.promise().query(
+            'SELECT p.ID_PERSONA, p.NOMBRE, p.APELLIDO, p.NUMERO_IDENTIFICACION, v.ID_VINCULACION FROM persona p LEFT JOIN vinculacion v ON p.ID_PERSONA = v.ID_PERSONA WHERE p.NUMERO_IDENTIFICACION = ? LIMIT 1',
+            [cedula]
+        );
+        
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'Persona no encontrada' });
+        }
+        
+        const persona = rows[0];
+        res.json({
+            id: persona.ID_PERSONA,
+            nombre: persona.NOMBRE,
+            apellido: persona.APELLIDO,
+            cedula: persona.NUMERO_IDENTIFICACION,
+            idVinculacion: persona.ID_VINCULACION
+        });
+    } catch (err) {
+        console.error('Error buscando persona:', err);
+        res.status(500).json({ error: 'Error buscando persona' });
+    }
+});
+
+
 
 // =====================
 // Ruta principal
@@ -161,11 +193,72 @@ ${hoy.toLocaleString("es-ES",{month:"long"})} de ${hoy.getFullYear()}.`,
 });
 
 // =====================
-// LISTAR CERTIFICADOS
+// DESCARGAR CERTIFICADO - AGREGADO
 // =====================
+// CORRECCIÓN: Se agregó nuevo endpoint para descargar certificados PDF generados
+// NOTE: use plain :codigo and expect callers to URL-encode '/' as '%2F'
+router.get('/descargar/:codigo', async (req, res) => {
+    try {
+        const { codigo } = req.params;
+        
+        const dir = path.join(__dirname, "../certificados");
+        
+        // Verificar que la carpeta existe
+        if (!fs.existsSync(dir)) {
+            return res.status(404).json({ error: 'Carpeta de certificados no encontrada' });
+        }
+
+        // Listar archivos en la carpeta
+        const archivos = fs.readdirSync(dir);
+        
+        // Convertir código de formato "1.111-252/25" a "252-25"
+        let codigoNormalizado = codigo;
+        const match = codigo.match(/(\d+)\/(\d+)$/); // Busca "252/25"
+        if (match) {
+            codigoNormalizado = `${match[1]}-${match[2]}`; // Convierte a "252-25"
+        }
+        
+        // Buscar el archivo que contiene el código normalizado
+        // El patrón es: Nombre_Apellido_252-25.pdf
+        const archivo = archivos.find(f => f.includes(codigoNormalizado) && f.endsWith('.pdf'));
+
+        if (!archivo) {
+            console.log('🔍 Archivos disponibles:', archivos.length, 'archivos');
+            console.log('🔍 Código buscado:', codigo, '-> normalizado:', codigoNormalizado);
+            console.log('🔍 Primeros 5 archivos:', archivos.slice(0, 5));
+            return res.status(404).json({ error: 'Archivo de certificado no encontrado' });
+        }
+
+        const rutaPDF = path.join(dir, archivo);
+        console.log('✅ Descargando:', archivo);
+        res.download(rutaPDF, archivo);
+    } catch (err) {
+        console.error('Error descargando certificado:', err);
+        res.status(500).json({ error: 'Error descargando certificado' });
+    }
+});
+
+// =====================
+// LISTAR CERTIFICADOS - CORREGIDO
+// =====================
+// CORRECCIÓN: Se agregó JOIN con vinculacion y persona para obtener NOMBRE, CEDULA y CODIGO
 router.get('/', async (req, res) => {
     try {
-        const [rows] = await conexion.promise().query('SELECT * FROM certificado');
+        const [rows] = await conexion.promise().query(`
+            SELECT 
+                c.ID_CERTIFICADO,
+                c.TIPO_CERTIFICADO,
+                c.TRD AS CODIGO,
+                c.FECHA_SOLICITUD,
+                c.ESTADO,
+                p.NOMBRE,
+                p.NUMERO_IDENTIFICACION AS CEDULA,
+                p.APELLIDO
+            FROM certificado c
+            LEFT JOIN vinculacion v ON c.ID_VINCULACION = v.ID_VINCULACION
+            LEFT JOIN persona p ON v.ID_PERSONA = p.ID_PERSONA
+            ORDER BY c.FECHA_SOLICITUD DESC
+        `);
         res.json(rows);
     } catch (err) {
         console.error('Error listando certificados:', err);
@@ -174,8 +267,38 @@ router.get('/', async (req, res) => {
 });
 
 // =====================
-// CAMBIAR ESTADO CERTIFICADO (ANTES de PUT genérico)
+// CREAR CERTIFICADO (POST desde frontend)
 // =====================
+// CORRECCIÓN: Endpoint mínimo para aceptar la creación de certificados desde la UI.
+// Inserta un registro mínimo en la tabla `certificado` (ID_VINCULACION puede quedar NULL)
+router.post('/', async (req, res) => {
+    try {
+        const { cedula, beneficiario, tipo, estado, fechaEmision, fechaVencimiento, codigo, descripcion } = req.body;
+
+        // CORRECCIÓN: Siempre generar TRD correcto en el backend (formato 1.111-<consecutivo>/<yy>)
+        // Ignorar cualquier 'codigo' enviado por el cliente para evitar valores tipo CERT-...
+        const trd = await generarTRD();
+
+        // Intentar insertar registro mínimo
+        const [result] = await conexion.promise().query(
+            'INSERT INTO certificado (FECHA_SOLICITUD, TIPO_CERTIFICADO, ID_VINCULACION, TRD) VALUES (?,?,NULL,?)',
+            [fechaEmision ? fechaEmision.split('T')[0] : new Date(), tipo || 'ADSCRIPCION', trd]
+        );
+
+        const insertId = result.insertId || null;
+
+        // Devolver id para que el frontend lo use
+        res.json({ id: insertId, trd });
+    } catch (err) {
+        console.error('Error creando certificado:', err);
+        res.status(500).json({ error: 'Error creando certificado' });
+    }
+});
+
+// =====================
+// CAMBIAR ESTADO CERTIFICADO
+// =====================
+// CORRECCI\u00d3N: Reactivado ahora que existe la columna ESTADO en la BD
 router.put('/cambiar-estado/:id', async (req, res) => {
     try {
         console.log("📍 PUT /cambiar-estado/:id called with id:", req.params.id, "body:", req.body);

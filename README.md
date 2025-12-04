@@ -74,6 +74,123 @@ El proyecto se abrirá automáticamente en `http://localhost:5173`
 npm run build
 ```
 
+## 🏁 Ejecución local (Frontend + Backend + Base de datos)
+
+Sigue estos pasos para levantar el proyecto completo en tu máquina (frontend + backend). Incluyo comandos para Windows PowerShell y ejemplos de configuración de la base de datos.
+
+1) Instalar dependencias (raíz y backend)
+
+```powershell
+# En la raíz (frontend)
+npm install
+
+# Directorio backend
+cd .\backend
+npm install
+```
+
+2) Configurar variables de entorno para el backend
+
+En `backend/.env` (crea el archivo si no existe) coloca la conexión a MySQL. Ejemplo:
+
+```
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=tu_password
+DB_NAME=acasgi_db
+PORT=4000
+```
+
+3) Asegurar esquema mínimo en la base de datos
+
+El backend espera algunas tablas y columnas específicas. Aquí hay un ejemplo SQL mínimo para la tabla `certificado` y columnas importantes que se usan en el código:
+
+```sql
+-- Tabla certificado (ejemplo mínimo)
+CREATE TABLE IF NOT EXISTS certificado (
+  ID_CERTIFICADO INT AUTO_INCREMENT PRIMARY KEY,
+  FECHA_SOLICITUD DATETIME DEFAULT CURRENT_TIMESTAMP,
+  TIPO_CERTIFICADO VARCHAR(50),
+  ID_VINCULACION INT NULL,
+  TRD VARCHAR(100) UNIQUE,
+  ESTADO VARCHAR(30) DEFAULT 'Vigente',
+  FECHA_VENCIMIENTO DATE NULL,
+  DESCRIPCION TEXT
+);
+
+-- Asegúrate de tener las tablas persona y vinculacion usadas por el endpoint /api/certificado/generar/:idVinculacion
+-- Persona (ejemplo mínimo)
+CREATE TABLE IF NOT EXISTS persona (
+  ID_PERSONA INT AUTO_INCREMENT PRIMARY KEY,
+  NOMBRE VARCHAR(150),
+  APELLIDO VARCHAR(150),
+  NUMERO_IDENTIFICACION VARCHAR(50)
+);
+
+-- Vinculacion (ejemplo mínimo)
+CREATE TABLE IF NOT EXISTS vinculacion (
+  ID_VINCULACION INT AUTO_INCREMENT PRIMARY KEY,
+  ID_PERSONA INT,
+  ID_SEMILLERO INT NULL,
+  ID_GRUPO INT NULL,
+  SEMESTRE VARCHAR(20),
+  FOREIGN KEY (ID_PERSONA) REFERENCES persona(ID_PERSONA)
+);
+```
+
+Si tu tabla `certificado` ya existe sin la columna `ESTADO`, añade la columna con:
+
+```sql
+ALTER TABLE certificado ADD COLUMN ESTADO VARCHAR(30) DEFAULT 'Vigente';
+```
+
+4) Levantar backend
+
+```powershell
+cd .\backend
+node server.js
+```
+
+Salida esperada: `⚡ Servidor backend funcionando en http://localhost:4000` y mensaje de conexión a la base de datos.
+
+5) Levantar frontend
+
+```powershell
+cd ..\
+npm run dev
+```
+
+Accede a la app en la URL que muestre Vite (por defecto `http://localhost:5173`).
+
+6) Usuarios de prueba
+
+Las credenciales de prueba están embebidas en `src/router/AuthContext.tsx` (solo para desarrollo):
+
+- Admin: `admin@acasgi.org` / `admin123`
+- Profesor: `profesor@acasgi.org` / `prof123`
+- Líder Grupo: `lidergrupo@acasgi.org` / `liderg123`
+- Líder Semillero: `lidersemillero@acasgi.org` / `liders123`
+- Semillerista: `semillerista@acasgi.org` / `sem123`
+
+7) Notas sobre generación y descarga de certificados
+
+- Los PDFs generados por el backend se guardan en `backend/certificados/`.
+- Para descargar un certificado desde el frontend se usa `GET /api/certificado/descargar/:codigo` donde `:codigo` es la TRD (ej: `1.111-252/25`). Asegúrate de que el cliente use `encodeURIComponent()` al componer la URL para evitar problemas con `/`.
+- El backend incluye una función `generarTRD()` que produce TRD con formato `1.111-<consecutivo>/<yy>` y el endpoint `GET /api/certificado/generar/:idVinculacion` genera el PDF y registra el `certificado` en la BD.
+
+8) Seguridad y roles
+
+- La autenticación actual es simulada en el frontend (`AuthContext`) para desarrollo.
+- UI: el frontend ya incluye restricciones por rol (ej.: generación de certificados restringida a ciertos roles).
+- Si necesitas proteger endpoints en el backend, te recomiendo implementar autenticación real (JWT/session) y validar rol en el servidor. Como alternativa de desarrollo puedes enviar `x-user-role` en las peticiones y validar en el backend (menos seguro).
+
+## 🛠️ Comprobaciones rápidas
+
+- Verificar que el backend puede conectarse a la base de datos: revisa logs al iniciar `node server.js`.
+- Probar endpoint de ejemplo: `GET http://localhost:4000/api/test` (debe devolver `{ success: true, resultado: 1 }`).
+- Probar búsqueda de persona: `GET http://localhost:4000/api/certificado/buscar-persona/<cedula>`.
+- Probar generación (Admin): iniciar sesión como Admin y desde la UI generar certificado; luego verificar que aparece en la lista y se genera PDF en `backend/certificados/`.
+
 ## 🔐 Credenciales de Prueba
 
 Sistema de roles con 5 niveles de acceso:

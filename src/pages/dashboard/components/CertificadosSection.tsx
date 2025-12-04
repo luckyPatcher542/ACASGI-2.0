@@ -1,9 +1,11 @@
 import { useState, useMemo, useEffect } from 'react';
 import axios from 'axios';
+import { useAuth } from '../../../router/AuthContext';
 import { Certificado } from '../../../mocks/certificados';
 import { integrantesData } from '../../../mocks/integrantes';
 
 export default function CertificadosSection() {
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState('Todos');
   const [selectedStatus, setSelectedStatus] = useState('Todos');
@@ -16,6 +18,31 @@ export default function CertificadosSection() {
 
   const types = ['Todos', 'Adscripción', 'Producto'];
   const statuses = ['Todos', 'Vigente', 'Vencido', 'Revocado'];
+
+  // Roles permitidos para GENERAR certificados (no incluyen 'Semillerista')
+  const canGenerate = ['Administrador', 'Profesor', 'LiderGrupo', 'LiderSemillero'].includes(user?.role);
+
+  // Función reutilizable para normalizar certificados desde la BD
+  const normalizeCertificados = (rows: any[]): Certificado[] => {
+    return rows.map((r: any) => {
+      const estado = (r.ESTADO === 1 || r.ESTADO === '1' || String(r.ESTADO).toLowerCase() === 'vigente') 
+        ? 'Vigente' 
+        : (r.ESTADO === 0 || r.ESTADO === '0' || String(r.ESTADO).toLowerCase() === 'vencido' 
+          ? 'Vencido' 
+          : (r.ESTADO ?? 'Vigente'));
+      return {
+        id: String(r.ID_CERTIFICADO ?? ''),
+        cedula: r.CEDULA ?? r.NUMERO_IDENTIFICACION ?? '',
+        beneficiario: (r.NOMBRE && r.APELLIDO) ? `${r.NOMBRE} ${r.APELLIDO}` : (r.NOMBRE ?? 'Desconocido'),
+        tipo: r.TIPO_CERTIFICADO === 'ADSCRIPCION' ? 'Adscripción' : (r.TIPO_CERTIFICADO === 'PRODUCTO' ? 'Producto' : 'Adscripción'),
+        estado,
+        fechaEmision: r.FECHA_SOLICITUD ?? r.fechaEmision ?? '',
+        fechaVencimiento: r.FECHA_VENCIMIENTO ?? r.fechaVencimiento ?? null,
+        codigo: r.TRD ?? r.CODIGO ?? '',
+        descripcion: r.DESCRIPCION ?? r.descripcion ?? ''
+      } as Certificado;
+    });
+  };
 
   const filteredCerts = useMemo(() => {
     return certificados.filter(cert => {
@@ -42,41 +69,39 @@ export default function CertificadosSection() {
     setSelectedStatus('Todos');
   };
 
-  const handleSearchIntegrante = () => {
-    const integrante = integrantesData.find(i => i.cedula === cedula);
-    if (integrante) {
-      setFoundIntegrante(integrante);
-    } else {
+  const handleSearchIntegrante = async () => {
+    try {
+      // CORRECCIÓN: Se cambió para buscar en la BD desde el endpoint de certificado
+      const res = await axios.get(`http://localhost:4000/api/certificado/buscar-persona/${cedula}`);
+      setFoundIntegrante({
+        ...res.data,
+        nombre: res.data.nombre && res.data.apellido ? `${res.data.nombre} ${res.data.apellido}` : res.data.nombre,
+        rol: 'Integrante',
+        email: '',
+        telefono: ''
+      });
+    } catch (err) {
       setFoundIntegrante(null);
-      alert('Integrante no encontrado');
+      console.error('Error buscando persona:', err);
+      alert('Persona no encontrada en la base de datos');
     }
   };
 
   const handleGenerateCertificate = async () => {
-    if (foundIntegrante) {
+    if (!canGenerate) {
+      alert('No tienes permisos para generar certificados');
+      return;
+    }
+
+    if (foundIntegrante && foundIntegrante.idVinculacion) {
       try {
-        const res = await axios.post('http://localhost:4000/api/certificado', {
-          cedula: foundIntegrante.cedula,
-          beneficiario: foundIntegrante.nombre,
-          tipo: 'Adscripción',
-          estado: 'Vigente',
-          fechaEmision: new Date().toISOString(),
-          fechaVencimiento: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
-          codigo: 'CERT-' + Date.now(),
-          descripcion: `Certificado de Adscripción para ${foundIntegrante.nombre}`
-        });
-        const newCert: Certificado = {
-          id: String(res.data.id || Date.now()),
-          cedula: foundIntegrante.cedula,
-          beneficiario: foundIntegrante.nombre,
-          tipo: 'Adscripción',
-          estado: 'Vigente',
-          fechaEmision: new Date().toISOString(),
-          fechaVencimiento: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
-          codigo: 'CERT-' + Date.now(),
-          descripcion: `Certificado de Adscripción para ${foundIntegrante.nombre}`
-        };
-        setCertificados([...certificados, newCert]);
+        // Llamar al endpoint que genera el PDF, guarda el certificado con TRD correcto
+        await axios.get(`http://localhost:4000/api/certificado/generar/${foundIntegrante.idVinculacion}`);
+        
+        // Recargar la lista de certificados para mostrar el nuevo (usando la misma función de normalización)
+        const certsRes = await axios.get('http://localhost:4000/api/certificado');
+        setCertificados(normalizeCertificados(certsRes.data));
+        
         alert('Certificado generado correctamente');
         setShowAdsModal(false);
         setCedula('');
@@ -85,6 +110,8 @@ export default function CertificadosSection() {
         console.error('Error generando certificado:', err);
         alert('Error al generar certificado');
       }
+    } else {
+      alert('Persona sin vinculación registrada');
     }
   };
 
@@ -93,21 +120,8 @@ export default function CertificadosSection() {
       try {
         const res = await axios.get('http://localhost:4000/api/certificado');
         const rows = Array.isArray(res.data) ? res.data : [];
-        const normalized = rows.map((r: any) => {
-          const estado = (r.ESTADO === 1 || r.ESTADO === '1' || String(r.estado).toLowerCase() === 'vigente') ? 'Vigente' : (r.ESTADO === 0 || r.ESTADO === '0' || String(r.estado).toLowerCase() === 'vencido' ? 'Vencido' : (r.estado ?? 'Vigente'));
-          return {
-            id: String(r.ID_CERTIFICADO ?? r.id ?? r.ID ?? ''),
-            cedula: r.CEDULA ?? r.cedula ?? '',
-            beneficiario: r.BENEFICIARIO ?? r.NOMBRE ?? r.beneficiario ?? r.nombre ?? 'Desconocido',
-            tipo: r.TIPO_CERTIFICADO ?? r.TIPO ?? r.tipo ?? 'Adscripción',
-            estado,
-            fechaEmision: r.FECHA_EMISION ?? r.FECHA_SOLICITUD ?? r.fechaEmision ?? '',
-            fechaVencimiento: r.FECHA_VENCIMIENTO ?? r.fechaVencimiento ?? null,
-            codigo: r.CODIGO ?? r.codigo ?? '',
-            descripcion: r.DESCRIPCION ?? r.descripcion ?? ''
-          } as Certificado;
-        });
-        setCertificados(normalized);
+        // Usar la función reutilizable para normalizar
+        setCertificados(normalizeCertificados(rows));
       } catch (err) {
         console.error('Error cargando certificados:', err);
       }
@@ -123,20 +137,26 @@ export default function CertificadosSection() {
           <p className="text-gray-600 dark:text-gray-400 text-sm">{filteredCerts.length} certificados encontrados</p>
         </div>
         <div className="flex gap-2">
-          <button
-            onClick={() => setShowAdsModal(true)}
-            className="btn-primary flex items-center gap-2"
-          >
-            <i className="ri-id-card-line text-xl"></i>
-            Certificado de Adscripción
-          </button>
-          <button
-            onClick={() => setShowProductModal(true)}
-            className="btn-secondary flex items-center gap-2"
-          >
-            <i className="ri-award-line text-xl"></i>
-            Certificado por Producto
-          </button>
+          {canGenerate ? (
+            <>
+              <button
+                onClick={() => setShowAdsModal(true)}
+                className="btn-primary flex items-center gap-2"
+              >
+                <i className="ri-id-card-line text-xl"></i>
+                Certificado de Adscripción
+              </button>
+              <button
+                onClick={() => setShowProductModal(true)}
+                className="btn-secondary flex items-center gap-2"
+              >
+                <i className="ri-award-line text-xl"></i>
+                Certificado por Producto
+              </button>
+            </>
+          ) : (
+            <div className="text-sm text-gray-500 italic">No tienes permisos para generar certificados</div>
+          )}
         </div>
       </div>
 
@@ -238,6 +258,34 @@ export default function CertificadosSection() {
                 >
                   Ver Detalle
                 </button>
+                {/* CORRECCIÓN: Se agregó botón para descargar certificados */}
+                {cert.codigo && (
+                  <button
+                    onClick={async () => {
+                      try {
+                        // CORRECCIÓN: encodeURIComponent para que '/' en el TRD no rompa la ruta
+                        const codigoEnc = encodeURIComponent(String(cert.codigo));
+                        const response = await axios.get(`http://localhost:4000/api/certificado/descargar/${codigoEnc}`, {
+                          responseType: 'blob'
+                        });
+                        const url = window.URL.createObjectURL(new Blob([response.data]));
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.setAttribute('download', `${cert.beneficiario}_${cert.codigo}.pdf`);
+                        document.body.appendChild(link);
+                        link.click();
+                        link.parentElement?.removeChild(link);
+                      } catch (err) {
+                        console.error('Error descargando certificado:', err);
+                        alert('Error al descargar el certificado');
+                      }
+                    }}
+                    className="flex-1 btn-secondary py-2 text-sm"
+                    title="Descargar PDF"
+                  >
+                    <i className="ri-download-line"></i>
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -295,12 +343,41 @@ export default function CertificadosSection() {
                 )}
               </div>
 
-              <button
-                onClick={() => setSelectedCert(null)}
-                className="w-full btn-primary py-2"
-              >
-                Cerrar
-              </button>
+              {/* CORRECCIÓN: Se agregó botón para descargar certificado en el modal */}
+              <div className="flex gap-2">
+                {selectedCert.codigo && (
+                  <button
+                    onClick={async () => {
+                      try {
+                        // CORRECCIÓN: encodeURIComponent para que '/' en el TRD no rompa la ruta
+                        const codigoEnc = encodeURIComponent(String(selectedCert.codigo));
+                        const response = await axios.get(`http://localhost:4000/api/certificado/descargar/${codigoEnc}`, {
+                          responseType: 'blob'
+                        });
+                        const url = window.URL.createObjectURL(new Blob([response.data]));
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.setAttribute('download', `${selectedCert.beneficiario}_${selectedCert.codigo}.pdf`);
+                        document.body.appendChild(link);
+                        link.click();
+                        link.parentElement?.removeChild(link);
+                      } catch (err) {
+                        console.error('Error descargando certificado:', err);
+                        alert('Error al descargar el certificado');
+                      }
+                    }}
+                    className="flex-1 btn-secondary py-2"
+                  >
+                    <i className="ri-download-line mr-2"></i>Descargar PDF
+                  </button>
+                )}
+                <button
+                  onClick={() => setSelectedCert(null)}
+                  className="flex-1 btn-primary py-2"
+                >
+                  Cerrar
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -351,7 +428,11 @@ export default function CertificadosSection() {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={handleGenerateCertificate} className="flex-1 btn-primary py-2">
+                  <button
+                    onClick={handleGenerateCertificate}
+                    className={`flex-1 btn-primary py-2 ${!canGenerate ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    disabled={!canGenerate}
+                  >
                     Generar Certificado
                   </button>
                   <button onClick={() => {
@@ -362,6 +443,9 @@ export default function CertificadosSection() {
                     Cancelar
                   </button>
                 </div>
+                {!canGenerate && (
+                  <p className="text-sm text-red-500 mt-2">No tienes permisos para generar certificados. Contacta al administrador.</p>
+                )}
               </div>
             )}
           </div>
