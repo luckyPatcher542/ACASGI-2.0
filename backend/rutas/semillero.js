@@ -1,7 +1,12 @@
 import express from "express";
-import { conexion } from "../conexion.js"; // <-- Cambiado de db.js a conexion.js
+import { conexion } from "../conexion.js";
 
 const router = express.Router();
+
+// Middleware: solo aceptar :id como números para prevenir conflictos de rutas
+router.param('id', (req, res, next, id) => {
+  next();
+});
 
 /* ==========================================================================
    1. LISTAR SEMILLEROS CON FILTROS (nombre, facultad, estado)
@@ -34,65 +39,77 @@ router.get("/", (req, res) => {
 });
 
 /* ======================
-   2. CREAR SEMILLERO
-   ====================== */
-router.post("/", (req, res) => {
-  conexion.query("INSERT INTO semillero SET ?", req.body, (err, result) => {
-    if (err) return res.status(500).json(err);
-    res.json({ message: "Semillero creado", id: result.insertId });
-  });
-});
-
-/* ======================
-   3. EDITAR SEMILLERO
-   ====================== */
-router.put("/:id", (req, res) => {
-  conexion.query(
-    "UPDATE semillero SET ? WHERE ID_SEMILLERO = ?",
-    [req.body, req.params.id],
-    (err) => {
-      if (err) return res.status(500).json(err);
-      res.json({ message: "Semillero actualizado" });
-    }
-  );
-});
-
-/* ======================
-   4. INACTIVAR SEMILLERO
+   2. INACTIVAR SEMILLERO (ANTES de PUT genérico)
    ====================== */
 router.put("/inactivar/:id", (req, res) => {
+  console.log("📍 PUT /inactivar/:id called with id:", req.params.id, "body:", req.body);
   const { motivo } = req.body;
 
   conexion.query(
     `
       UPDATE semillero 
-      SET ESTADO = 0, MOTIVO_INACTIVACION = ?
+      SET ESTADO = 0, ESTADO = ?
       WHERE ID_SEMILLERO = ?
     `,
     [motivo, req.params.id],
     (err) => {
-      if (err) return res.status(500).json(err);
+      if (err) {
+        console.error("❌ Error inactivando semillero:", err);
+        return res.status(500).json(err);
+      }
       res.json({ message: "Semillero inactivado" });
     }
   );
 });
 
 /* ======================
-   5. ACTIVAR SEMILLERO
+   3. ACTIVAR SEMILLERO (ANTES de PUT genérico)
    ====================== */
 router.put("/activar/:id", (req, res) => {
+  console.log("📍 PUT /activar/:id called with id:", req.params.id);
   conexion.query(
     `
       UPDATE semillero
-      SET ESTADO = 1, MOTIVO_INACTIVACION = NULL
+      SET ESTADO = 1, ESTADO = NULL
       WHERE ID_SEMILLERO = ?
     `,
     [req.params.id],
     (err) => {
-      if (err) return res.status(500).json(err);
+      if (err) {
+        console.error("❌ Error activando semillero:", err);
+        return res.status(500).json(err);
+      }
       res.json({ message: "Semillero activado" });
     }
   );
+});
+
+/* ======================
+   4. EDITAR SEMILLERO (GENÉRICO)
+   ====================== */
+router.put("/:id", (req, res) => {
+  console.log("📍 PUT /:id called with id:", req.params.id, "body:", req.body);
+  conexion.query(
+    "UPDATE semillero SET ? WHERE ID_SEMILLERO = ?",
+    [req.body, req.params.id],
+    (err) => {
+      if (err) {
+        console.error("❌ Error editando semillero:", err);
+        return res.status(500).json(err);
+      }
+      res.json({ message: "Semillero actualizado" });
+    }
+  );
+});
+
+/* ======================
+   5. CREAR SEMILLERO
+   ====================== */
+router.post("/", (req, res) => {
+  conexion.query("INSERT INTO semillero SET ?", req.body, (err, result) => {
+    if (err) return res.status(500).json(err);
+    res.json({ message: "Semillero creado", id: result.insertId });
+  });
 });
 
 /* ======================

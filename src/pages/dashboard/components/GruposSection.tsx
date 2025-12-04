@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react';
-import { gruposData, Grupo } from '../../../mocks/grupos';
+import { useState, useMemo, useEffect } from 'react';
+import axios from 'axios';
+import { Grupo } from '../../../mocks/grupos';
 import { createStatusChangeNotification } from '../../../mocks/notifications';
 import { useAuth } from '../../../router/AuthContext';
 
@@ -62,7 +63,7 @@ export default function GruposSection() {
   const [selectedCategory, setSelectedCategory] = useState('Todos');
   const [selectedStatus, setSelectedStatus] = useState('Todos');
   const [selectedGroup, setSelectedGroup] = useState<Grupo | null>(null);
-  const [grupos, setGrupos] = useState(gruposData);
+  const [grupos, setGrupos] = useState<Grupo[]>([]);
   const [editingGroup, setEditingGroup] = useState<Grupo | null>(null);
   const [showNewGroupForm, setShowNewGroupForm] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
@@ -95,22 +96,41 @@ export default function GruposSection() {
     setShowStatusModal(true);
   };
 
-  const handleConfirmStatusChange = () => {
+  const handleConfirmStatusChange = async () => {
     if (statusChangeGroup && statusChangeReason.trim()) {
-      const nuevoEstado = statusChangeGroup.estado === 'Activo' ? 'Inactivo' : 'Activo';
-      setGrupos(grupos.map(g =>
-        g.id === statusChangeGroup.id
-          ? { ...g, estado: nuevoEstado }
-          : g
-      ));
+      // Si el estado ACTUAL es Activo, vamos a INACTIVAr
+      // Si el estado ACTUAL es Inactivo, vamos a ACTIVAr
+      const isCurrentlyActive = statusChangeGroup.estado === 'Activo';
+      const endpoint = isCurrentlyActive
+        ? `http://localhost:4000/api/grupo/inactivar/${statusChangeGroup.id}`
+        : `http://localhost:4000/api/grupo/activar/${statusChangeGroup.id}`;
       
-      // Crear notificación
-      createStatusChangeNotification(statusChangeGroup.nombre, 'grupo', nuevoEstado);
+      const nuevoEstado = isCurrentlyActive ? 'Inactivo' : 'Activo';
       
-      alert(`Grupo ${nuevoEstado === 'Activo' ? 'activado' : 'inactivado'} correctamente.\nMotivo: ${statusChangeReason}`);
-      setShowStatusModal(false);
-      setStatusChangeGroup(null);
-      setStatusChangeReason('');
+      try {
+        console.log('Enviando PUT a:', endpoint, 'con motivo:', statusChangeReason);
+        const response = await axios.put(endpoint, { motivo: statusChangeReason });
+        console.log('Respuesta del backend:', response.data);
+        
+        setGrupos(grupos.map(g =>
+          g.id === statusChangeGroup.id
+            ? { ...g, estado: nuevoEstado }
+            : g
+        ));
+        
+        // Crear notificación
+        createStatusChangeNotification(statusChangeGroup.nombre, 'grupo', nuevoEstado);
+        
+        alert(`Grupo ${nuevoEstado === 'Activo' ? 'activado' : 'inactivado'} correctamente.\nMotivo: ${statusChangeReason}`);
+        setShowStatusModal(false);
+        setStatusChangeGroup(null);
+        setStatusChangeReason('');
+      } catch (err: any) {
+        console.error('Error completo:', err);
+        console.error('Error response:', err.response?.data);
+        console.error('Error status:', err.response?.status);
+        alert(`Error al cambiar estado del grupo: ${err.response?.data?.message || err.message}`);
+      }
     }
   };
 
@@ -118,21 +138,70 @@ export default function GruposSection() {
     setEditingGroup(group);
   };
 
-  const handleSaveEdit = (updatedGroup: Grupo) => {
-    setGrupos(grupos.map(g => 
-      g.id === updatedGroup.id ? updatedGroup : g
-    ));
-    setEditingGroup(null);
+  const handleSaveEdit = async (updatedGroup: Grupo) => {
+    try {
+      await axios.put(`http://localhost:4000/api/grupo/${updatedGroup.id}`, {
+        NOMBRE: updatedGroup.nombre,
+        DESCRIPCION: updatedGroup.descripcion,
+        FACULTAD: updatedGroup.categoria,
+        LIDER_GRUPO: updatedGroup.lider
+      });
+      setGrupos(grupos.map(g => 
+        g.id === updatedGroup.id ? updatedGroup : g
+      ));
+      setEditingGroup(null);
+      alert('Grupo actualizado correctamente');
+    } catch (err) {
+      console.error('Error actualizando grupo:', err);
+      alert('Error al actualizar grupo');
+    }
   };
 
-  const handleCreateGroup = (newGroup: Omit<Grupo, 'id'>) => {
-    const grupo: Grupo = {
-      ...newGroup,
-      id: 'grupo_' + Date.now()
-    };
-    setGrupos([...grupos, grupo]);
-    setShowNewGroupForm(false);
+  const handleCreateGroup = async (newGroup: Omit<Grupo, 'id'>) => {
+    try {
+      const res = await axios.post('http://localhost:4000/api/grupo', {
+        NOMBRE: newGroup.nombre,
+        DESCRIPCION: newGroup.descripcion,
+        FACULTAD: newGroup.categoria,
+        LIDER_GRUPO: newGroup.lider,
+        ESTADO: 1
+      });
+      const grupo: Grupo = {
+        ...newGroup,
+        id: String(res.data.id || Date.now())
+      };
+      setGrupos([...grupos, grupo]);
+      setShowNewGroupForm(false);
+      alert('Grupo creado correctamente');
+    } catch (err) {
+      console.error('Error creando grupo:', err);
+      alert('Error al crear grupo');
+    }
   };
+
+  useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        const res = await axios.get('http://localhost:4000/api/grupo');
+        const rows = Array.isArray(res.data) ? res.data : [];
+        const normalized = rows.map((r: any) => ({
+          id: String(r.ID_GRUPO ?? r.id ?? r.ID ?? ''),
+          nombre: r.NOMBRE ?? r.nombre ?? '',
+          categoria: r.FACULTAD ?? r.categoria ?? r.FACULTAD_ACADEMICA ?? '',
+          estado: (r.ESTADO === 1 || r.ESTADO === '1' || r.estado === 1) ? ('Activo' as const) : ('Inactivo' as const),
+          descripcion: r.DESCRIPCION ?? r.descripcion ?? '',
+          lider: r.LIDER_GRUPO ?? r.lider ?? '',
+          integrantes: r.INTEGRANTES ?? r.integrantes ?? 0,
+          semilleros: r.SEMILLEROS ?? r.semilleros ?? 0,
+          fechaCreacion: r.FECHA_CREACION ?? r.fechaCreacion ?? ''
+        }));
+        setGrupos(normalized);
+      } catch (err) {
+        console.error('Error cargando grupos:', err);
+      }
+    };
+    fetchGroups();
+  }, []);
 
   return (
     <div className="space-y-6">

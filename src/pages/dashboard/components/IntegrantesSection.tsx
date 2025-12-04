@@ -1,13 +1,14 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import axios from 'axios';
 import { Integrante } from '../../../mocks/integrantes';
-import { gruposData } from '../../../mocks/grupos';
 import { useAuth } from '../../../router/AuthContext';
 
-function NewIntegranteForm({ onSubmit, onCancel, groupNames, roles }: {
+function NewIntegranteForm({ onSubmit, onCancel, groupNames, roles, groups }: {
   onSubmit: (data: Omit<Integrante, 'id'>) => void;
   onCancel: () => void;
   groupNames: string[];
   roles: ('Líder (Grupo)' | 'Líder (Semillero)' | 'Profesor' | 'Semillerista')[];
+  groups?: any[];
 }) {
   const [formData, setFormData] = useState({
     nombre: '',
@@ -24,11 +25,11 @@ function NewIntegranteForm({ onSubmit, onCancel, groupNames, roles }: {
   });
 
   const handleSubmit = () => {
-    const grupo = gruposData.find(g => g.nombre === formData.grupo);
+    const grupo = groups?.find(g => g.nombre === formData.grupo);
     const initials = formData.nombre.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
     onSubmit({
       ...formData,
-      grupo: grupo?.id || '',
+      grupo: grupo?.id || formData.grupo,
       iniciales: initials,
       rol: formData.rol
     });
@@ -106,9 +107,22 @@ export default function IntegrantesSection() {
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [statusChangeIntegrante, setStatusChangeIntegrante] = useState<Integrante | null>(null);
   const [statusChangeReason, setStatusChangeReason] = useState('');
+  const [grupos, setGrupos] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchGrupos = async () => {
+      try {
+        const res = await axios.get('http://localhost:4000/api/grupo');
+        setGrupos(Array.isArray(res.data) ? res.data : []);
+      } catch (err) {
+        console.error('Error cargando grupos:', err);
+      }
+    };
+    fetchGrupos();
+  }, []);
 
   const roles = ['Todos', 'Líder (Grupo)', 'Líder (Semillero)', 'Profesor', 'Semillerista'];
-  const groupNames = ['Todos', ...new Set(gruposData.map(g => g.nombre))];
+  const groupNames = ['Todos', ...Array.from(new Set(grupos.map(g => g.nombre)))];
   const estados = ['Todos', 'Activo', 'Inactivo'];
 
   // Helper function to get initials from name
@@ -121,7 +135,7 @@ export default function IntegrantesSection() {
       const matchesSearch = integrante.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
                            integrante.cedula.includes(searchQuery);
       const matchesRole = selectedRole === 'Todos' || integrante.rol === selectedRole;
-      const grupo = gruposData.find(g => g.id === integrante.grupo);
+      const grupo = grupos.find(g => g.id === integrante.grupo);
       const matchesGroup = selectedGroup === 'Todos' || grupo?.nombre === selectedGroup;
       const matchesStatus = selectedStatus === 'Todos' || integrante.estado === selectedStatus;
       return matchesSearch && matchesRole && matchesGroup && matchesStatus;
@@ -273,7 +287,7 @@ export default function IntegrantesSection() {
       {/* Members Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredIntegrantes.slice(0, 24).map((integrante) => {
-          const grupo = gruposData.find(g => g.id === integrante.grupo);
+          const grupo = grupos.find(g => g.id === integrante.grupo);
           return (
             <div key={integrante.id} className="bg-white dark:bg-gray-800 rounded-xl p-6 card-shadow hover:shadow-2xl">
               <div className="flex items-start gap-4 mb-4">
@@ -387,6 +401,7 @@ export default function IntegrantesSection() {
               onSubmit={handleCreateIntegrante}
               onCancel={() => setShowNewForm(false)}
               groupNames={groupNames.filter(g => g !== 'Todos')}
+              groups={grupos}
               roles={roles.filter(r => r !== 'Todos') as ('Líder (Grupo)' | 'Líder (Semillero)' | 'Profesor' | 'Semillerista')[]}
             />
           </div>
@@ -462,15 +477,15 @@ export default function IntegrantesSection() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Grupo</label>
-                  <select
-                    value={editingIntegrante.grupo}
-                    onChange={(e) => setEditingIntegrante({ ...editingIntegrante, grupo: e.target.value })}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                  >
-                    {gruposData.map(grupo => (
-                      <option key={grupo.id} value={grupo.id}>{grupo.nombre}</option>
-                    ))}
-                  </select>
+                    <select
+                      value={editingIntegrante.grupo}
+                      onChange={(e) => setEditingIntegrante({ ...editingIntegrante, grupo: e.target.value })}
+                      className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    >
+                      {grupos.map(grupo => (
+                        <option key={grupo.id} value={grupo.id}>{grupo.nombre}</option>
+                      ))}
+                    </select>
                 </div>
               </div>
             </div>
