@@ -3,6 +3,13 @@ import { conexion } from "../conexion.js";
 
 const router = express.Router();
 
+// Middleware: solo aceptar :id como números para prevenir conflictos de rutas
+router.param('id', (req, res, next, id) => {
+  // Permitir que pasen valores no numéricos (para que `/inactivar/:id` y `/activar/:id` funcionen)
+  // pero también permitir numéricos para `/grupo/:id`
+  next();
+});
+
 /* ===========================================================
    1. LISTAR GRUPOS CON FILTROS (nombre, facultad, estado)
    =========================================================== */
@@ -34,7 +41,66 @@ router.get("/", (req, res) => {
 });
 
 /* ======================
-   2. CREAR GRUPO
+   2. INACTIVAR GRUPO
+   ====================== */
+router.put("/inactivar/:id", (req, res) => {
+  console.log("📍 PUT /inactivar/:id - ID:", req.params.id, "Body:", req.body);
+  const { motivo } = req.body;
+
+  conexion.query(
+    "UPDATE grupo SET ESTADO = 0, MOTIVO_INACTIVACION = ? WHERE ID_GRUPO = ?",
+    [motivo || "Sin especificar", req.params.id],
+    (err) => {
+      if (err) {
+        console.error("❌ Error inactivando grupo:", err);
+        return res.status(500).json(err);
+      }
+      console.log("✅ Grupo inactivado exitosamente");
+      res.json({ message: "Grupo inactivado" });
+    }
+  );
+});
+
+/* ======================
+   3. ACTIVAR GRUPO
+   ====================== */
+router.put("/activar/:id", (req, res) => {
+  console.log("📍 PUT /activar/:id - ID:", req.params.id);
+  conexion.query(
+    "UPDATE grupo SET ESTADO = 1, MOTIVO_INACTIVACION = NULL WHERE ID_GRUPO = ?",
+    [req.params.id],
+    (err) => {
+      if (err) {
+        console.error("❌ Error activando grupo:", err);
+        return res.status(500).json(err);
+      }
+      console.log("✅ Grupo activado exitosamente");
+      res.json({ message: "Grupo activado" });
+    }
+  );
+});
+
+/* ======================
+   4. EDITAR GRUPO
+   ====================== */
+router.put("/:id", (req, res) => {
+  console.log("📍 PUT /:id - ID:", req.params.id, "Body:", req.body);
+  conexion.query(
+    "UPDATE grupo SET ? WHERE ID_GRUPO = ?",
+    [req.body, req.params.id],
+    (err) => {
+      if (err) {
+        console.error("❌ Error editando grupo:", err);
+        return res.status(500).json(err);
+      }
+      console.log("✅ Grupo actualizado exitosamente");
+      res.json({ message: "Grupo actualizado" });
+    }
+  );
+});
+
+/* ======================
+   5. CREAR GRUPO
    ====================== */
 router.post("/", (req, res) => {
   const datos = {
@@ -46,50 +112,6 @@ router.post("/", (req, res) => {
     if (err) return res.status(500).json(err);
     res.json({ message: "Grupo creado", id: result.insertId });
   });
-});
-
-/* ======================
-   3. EDITAR GRUPO
-   ====================== */
-router.put("/:id", (req, res) => {
-  conexion.query(
-    "UPDATE grupo SET ? WHERE ID_GRUPO = ?",
-    [req.body, req.params.id],
-    (err) => {
-      if (err) return res.status(500).json(err);
-      res.json({ message: "Grupo actualizado" });
-    }
-  );
-});
-
-/* ======================
-   4. INACTIVAR GRUPO (equivalente a eliminar)
-   ====================== */
-router.put("/inactivar/:id", (req, res) => {
-  const { motivo } = req.body;
-
-  conexion.query(
-    "UPDATE grupo SET ESTADO = 0, MOTIVO_INACTIVACION = ? WHERE ID_GRUPO = ?",
-    [motivo || "Sin especificar", req.params.id],
-    (err) => {
-      if (err) return res.status(500).json(err);
-      res.json({ message: "Grupo inactivado" });
-    }
-  );
-});
-
-/* ======================
-   5. ACTIVAR GRUPO
-   ====================== */
-router.put("/activar/:id", (req, res) => {
-  conexion.query(
-    "UPDATE grupo SET ESTADO = 1, MOTIVO_INACTIVACION = NULL WHERE ID_GRUPO = ?",
-    [req.params.id],
-    (err) => {
-      if (err) return res.status(500).json(err);
-      res.json({ message: "Grupo activado" });
-    }
-  );
 });
 
 /* ======================

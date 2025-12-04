@@ -1,18 +1,18 @@
-import { useState, useMemo } from 'react';
-import { semillerosData, Semillero } from '../../../mocks/semilleros';
-import { gruposData } from '../../../mocks/grupos';
+import { useState, useMemo, useEffect } from 'react';
+import axios from 'axios';
+import { Semillero } from '../../../mocks/semilleros';
 import { createStatusChangeNotification } from '../../../mocks/notifications';
 import { useAuth } from '../../../router/AuthContext';
 
 function NewSemilleroForm({ onSubmit, onCancel, grupos }: { 
   onSubmit: (data: Omit<Semillero, 'id'>) => void;
   onCancel: () => void;
-  grupos: string[];
+  grupos: any[];
 }) {
   const [formData, setFormData] = useState<Omit<Semillero, 'id'>>({
     nombre: '',
     descripcion: '',
-    grupoPadre: grupos[0] || '',
+    grupoPadre: '',
     coordinador: '',
     integrantes: 0,
     estado: 'Activo',
@@ -39,7 +39,9 @@ function NewSemilleroForm({ onSubmit, onCancel, grupos }: {
         onChange={(e) => setFormData({...formData, grupoPadre: e.target.value})}
         className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
       >
-        {grupos.map(g => <option key={g} value={g}>{gruposData.find(gr => gr.id === g)?.nombre || g}</option>)}
+        {grupos.map(g => (
+          <option key={g.id ?? g} value={g.id ?? g}>{(g.nombre ?? g)}</option>
+        ))}
       </select>
       <input
         type="text"
@@ -69,7 +71,8 @@ export default function SemillerosSection() {
   const [selectedFaculty, setSelectedFaculty] = useState('Todos');
   const [selectedStatus, setSelectedStatus] = useState('Todos');
   const [selectedSemillero, setSelectedSemillero] = useState<Semillero | null>(null);
-  const [semilleros, setSemilleros] = useState(semillerosData);
+  const [semilleros, setSemilleros] = useState<Semillero[]>([]);
+  const [grupos, setGrupos] = useState<any[]>([]);
   const [editingSemillero, setEditingSemillero] = useState<Semillero | null>(null);
   const [showNewSemilleroForm, setShowNewSemilleroForm] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
@@ -79,12 +82,12 @@ export default function SemillerosSection() {
   const faculties = ['Todos', 'Ingeniería', 'Administración', 'Ciencias Humanas', 'Derecho', 'Medicina'];
   const statuses = ['Todos', 'Activo', 'Inactivo'];
 
-  const gruposIds = gruposData.map(g => g.id);
+  
 
   const filteredSemilleros = useMemo(() => {
     return semilleros.filter(semillero => {
       const matchesSearch = semillero.nombre.toLowerCase().includes(searchQuery.toLowerCase());
-      const grupo = gruposData.find(g => g.id === semillero.grupoPadre);
+      const grupo = grupos.find(g => g.id === semillero.grupoPadre);
       const matchesFaculty = selectedFaculty === 'Todos' || grupo?.categoria === selectedFaculty;
       const matchesStatus = selectedStatus === 'Todos' || semillero.estado === selectedStatus;
       return matchesSearch && matchesFaculty && matchesStatus;
@@ -101,20 +104,46 @@ export default function SemillerosSection() {
     setEditingSemillero(semillero);
   };
 
-  const handleSaveEdit = (updatedSemillero: Semillero) => {
-    setSemilleros(semilleros.map(s => 
-      s.id === updatedSemillero.id ? updatedSemillero : s
-    ));
-    setEditingSemillero(null);
+  const handleSaveEdit = async (updatedSemillero: Semillero) => {
+    try {
+      await axios.put(`http://localhost:4000/api/semillero/${updatedSemillero.id}`, {
+        NOMBRE: updatedSemillero.nombre,
+        DESCRIPCION: updatedSemillero.descripcion,
+        LIDER_SEMILLERO: updatedSemillero.coordinador,
+        INTEGRANTES: updatedSemillero.integrantes
+      });
+      setSemilleros(semilleros.map(s => 
+        s.id === updatedSemillero.id ? updatedSemillero : s
+      ));
+      setEditingSemillero(null);
+      alert('Semillero actualizado correctamente');
+    } catch (err) {
+      console.error('Error actualizando semillero:', err);
+      alert('Error al actualizar semillero');
+    }
   };
 
-  const handleCreateSemillero = (newSemillero: Omit<Semillero, 'id'>) => {
-    const semillero: Semillero = {
-      ...newSemillero,
-      id: 'semillero_' + Date.now()
-    };
-    setSemilleros([...semilleros, semillero]);
-    setShowNewSemilleroForm(false);
+  const handleCreateSemillero = async (newSemillero: Omit<Semillero, 'id'>) => {
+    try {
+      const res = await axios.post('http://localhost:4000/api/semillero', {
+        NOMBRE: newSemillero.nombre,
+        DESCRIPCION: newSemillero.descripcion,
+        ID_GRUPO: newSemillero.grupoPadre,
+        LIDER_SEMILLERO: newSemillero.coordinador,
+        INTEGRANTES: newSemillero.integrantes,
+        ESTADO: 1
+      });
+      const semillero: Semillero = {
+        ...newSemillero,
+        id: String(res.data.id || Date.now())
+      };
+      setSemilleros([...semilleros, semillero]);
+      setShowNewSemilleroForm(false);
+      alert('Semillero creado correctamente');
+    } catch (err) {
+      console.error('Error creando semillero:', err);
+      alert('Error al crear semillero');
+    }
   };
 
   const handleStatusChange = (semillero: Semillero) => {
@@ -123,24 +152,84 @@ export default function SemillerosSection() {
     setShowStatusModal(true);
   };
 
-  const handleConfirmStatusChange = () => {
+  const handleConfirmStatusChange = async () => {
     if (statusChangeSemillero && statusChangeReason.trim()) {
-      const nuevoEstado = statusChangeSemillero.estado === 'Activo' ? 'Inactivo' : 'Activo';
-      setSemilleros(semilleros.map(s =>
-        s.id === statusChangeSemillero.id
-          ? { ...s, estado: nuevoEstado }
-          : s
-      ));
+      // Si el estado ACTUAL es Activo, vamos a INACTIVAr
+      // Si el estado ACTUAL es Inactivo, vamos a ACTIVAr
+      const isCurrentlyActive = statusChangeSemillero.estado === 'Activo';
+      const endpoint = isCurrentlyActive
+        ? `http://localhost:4000/api/semillero/inactivar/${statusChangeSemillero.id}`
+        : `http://localhost:4000/api/semillero/activar/${statusChangeSemillero.id}`;
       
-      // Crear notificación
-      createStatusChangeNotification(statusChangeSemillero.nombre, 'seedbed', nuevoEstado);
+      const nuevoEstado = isCurrentlyActive ? 'Inactivo' : 'Activo';
       
-      alert(`Semillero ${nuevoEstado === 'Activo' ? 'activado' : 'inactivado'} correctamente.\nMotivo: ${statusChangeReason}`);
-      setShowStatusModal(false);
-      setStatusChangeSemillero(null);
-      setStatusChangeReason('');
+      try {
+        console.log('Enviando PUT a:', endpoint, 'con motivo:', statusChangeReason);
+        const response = await axios.put(endpoint, { motivo: statusChangeReason });
+        console.log('Respuesta del backend:', response.data);
+        
+        setSemilleros(semilleros.map(s =>
+          s.id === statusChangeSemillero.id
+            ? { ...s, estado: nuevoEstado }
+            : s
+        ));
+        
+        // Crear notificación
+        createStatusChangeNotification(statusChangeSemillero.nombre, 'seedbed', nuevoEstado);
+        
+        alert(`Semillero ${nuevoEstado === 'Activo' ? 'activado' : 'inactivado'} correctamente.\nMotivo: ${statusChangeReason}`);
+        setShowStatusModal(false);
+        setStatusChangeSemillero(null);
+        setStatusChangeReason('');
+      } catch (err: any) {
+        console.error('Error completo:', err);
+        console.error('Error response:', err.response?.data);
+        console.error('Error status:', err.response?.status);
+        alert(`Error al cambiar estado del semillero: ${err.response?.data?.message || err.message}`);
+      }
     }
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [gRes, sRes] = await Promise.all([
+          axios.get('http://localhost:4000/api/grupo'),
+          axios.get('http://localhost:4000/api/semillero')
+        ]);
+
+        // Normalizar grupos
+        const groupsRows = Array.isArray(gRes.data) ? gRes.data : [];
+        const normalizedGroups = groupsRows.map((r: any) => ({
+          id: String(r.ID_GRUPO ?? r.id ?? ''),
+          nombre: r.NOMBRE ?? r.nombre ?? '',
+          categoria: r.FACULTAD ?? r.categoria ?? r.FACULTAD_ACADEMICA ?? '',
+          estado: (r.ESTADO === 1 || r.ESTADO === '1') ? 'Activo' : 'Inactivo',
+          descripcion: r.DESCRIPCION ?? r.descripcion ?? '',
+          lider: r.LIDER_GRUPO ?? r.lider ?? ''
+        }));
+
+        // Normalizar semilleros
+        const semRows = Array.isArray(sRes.data) ? sRes.data : [];
+        const normalizedSem = semRows.map((s: any) => ({
+          id: String(s.ID_SEMILLERO ?? s.id ?? ''),
+          nombre: s.NOMBRE ?? s.nombre ?? '',
+          descripcion: s.DESCRIPCION ?? s.descripcion ?? '' ,
+          grupoPadre: s.ID_GRUPO ?? s.GRUPO_PADRE ?? s.grupoPadre ?? '',
+          coordinador: s.LIDER_SEMILLERO ?? s.coordinador ?? s.LIDER ?? '',
+          integrantes: s.INTEGRANTES ?? s.integrantes ?? 0,
+          estado: (s.ESTADO === 1 || s.ESTADO === '1') ? ('Activo' as const) : ('Inactivo' as const),
+          fechaCreacion: s.FECHA_CREACION ?? s.fechaCreacion ?? ''
+        }));
+
+        setGrupos(normalizedGroups);
+        setSemilleros(normalizedSem);
+      } catch (err) {
+        console.error('Error cargando semilleros/grupos:', err);
+      }
+    };
+    fetchData();
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -215,7 +304,7 @@ export default function SemillerosSection() {
       {/* Seedbeds Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredSemilleros.map((semillero) => {
-          const grupo = gruposData.find(g => g.id === semillero.grupoPadre);
+                  const grupo = grupos.find(g => g.id === semillero.grupoPadre);
           return (
             <div key={semillero.id} className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden card-shadow">
               <div className="bg-gradient-to-r from-blue-500 to-indigo-500 p-4 text-white">
@@ -303,7 +392,7 @@ export default function SemillerosSection() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Grupo Padre</p>
-                  <p className="font-semibold text-gray-900 dark:text-white">{gruposData.find(g => g.id === selectedSemillero.grupoPadre)?.nombre}</p>
+                  <p className="font-semibold text-gray-900 dark:text-white">{grupos.find(g => g.id === selectedSemillero.grupoPadre)?.nombre}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Estado</p>
@@ -338,7 +427,7 @@ export default function SemillerosSection() {
             <NewSemilleroForm 
               onSubmit={handleCreateSemillero}
               onCancel={() => setShowNewSemilleroForm(false)}
-              grupos={gruposIds}
+              grupos={grupos}
             />
           </div>
         </div>

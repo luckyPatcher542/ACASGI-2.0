@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../router/AuthContext';
-import { gruposData } from '../../../mocks/grupos';
-import { semillerosData } from '../../../mocks/semilleros';
+import axios from 'axios';
 import { integrantesData } from '../../../mocks/integrantes';
-import { certificadosData } from '../../../mocks/certificados';
 import { getNotifications } from '../../../mocks/notifications';
 
 export default function DashboardHome() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [notifications, setNotifications] = useState(getNotifications());
+  const [grupos, setGrupos] = useState<any[]>([]);
+  const [semilleros, setSemilleros] = useState<any[]>([]);
+  const [certificados, setCertificados] = useState<any[]>([]);
 
   // Actualizar notificaciones cuando cambie algo
   useEffect(() => {
@@ -23,11 +24,51 @@ export default function DashboardHome() {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const fetchKpis = async () => {
+      try {
+        const [gRes, sRes, cRes] = await Promise.all([
+          axios.get('http://localhost:4000/api/grupo'),
+          axios.get('http://localhost:4000/api/semillero'),
+          axios.get('http://localhost:4000/api/certificado')
+        ]);
+        const gruposRows = Array.isArray(gRes.data) ? gRes.data : [];
+        const semRows = Array.isArray(sRes.data) ? sRes.data : [];
+        const certRows = Array.isArray(cRes.data) ? cRes.data : [];
+
+        // Normalizar mínimamente para KPIs
+        const normalizedGrupos = gruposRows.map((r: any) => ({
+          id: String(r.ID_GRUPO ?? r.id ?? ''),
+          nombre: r.NOMBRE ?? r.nombre ?? '',
+          categoria: r.FACULTAD ?? r.categoria ?? '',
+          estado: (r.ESTADO === 1 || r.ESTADO === '1') ? 'Activo' : 'Inactivo'
+        }));
+
+        const normalizedSemilleros = semRows.map((s: any) => ({
+          id: String(s.ID_SEMILLERO ?? s.id ?? ''),
+          nombre: s.NOMBRE ?? s.nombre ?? '',
+          estado: (s.ESTADO === 1 || s.ESTADO === '1') ? 'Activo' : 'Inactivo'
+        }));
+
+        const normalizedCerts = certRows.map((r: any) => ({
+          id: String(r.ID_CERTIFICADO ?? r.id ?? ''),
+        }));
+
+        setGrupos(normalizedGrupos);
+        setSemilleros(normalizedSemilleros);
+        setCertificados(normalizedCerts);
+      } catch (err) {
+        console.error('Error cargando KPIs:', err);
+      }
+    };
+    fetchKpis();
+  }, []);
+
   // KPIs - Mismos para todos
-  const totalGrupos = gruposData.length;
-  const activeSemilleros = semillerosData.filter(s => s.estado === 'Activo').length;
+  const totalGrupos = grupos.length;
+  const activeSemilleros = semilleros.filter(s => s.estado === 'Activo').length;
   const totalIntegrantes = integrantesData.length;
-  const totalCertificados = certificadosData.length;
+  const totalCertificados = certificados.length;
 
   // Actividad Reciente - Usar notificaciones del sistema o valores por defecto
   const recentActivities = notifications.length > 0 ? notifications.slice(0, 5) : [

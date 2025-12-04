@@ -160,4 +160,62 @@ ${hoy.toLocaleString("es-ES",{month:"long"})} de ${hoy.getFullYear()}.`,
     }
 });
 
+// =====================
+// LISTAR CERTIFICADOS
+// =====================
+router.get('/', async (req, res) => {
+    try {
+        const [rows] = await conexion.promise().query('SELECT * FROM certificado');
+        res.json(rows);
+    } catch (err) {
+        console.error('Error listando certificados:', err);
+        res.status(500).json({ error: 'Error listando certificados' });
+    }
+});
+
+// =====================
+// CAMBIAR ESTADO CERTIFICADO (ANTES de PUT genérico)
+// =====================
+router.put('/cambiar-estado/:id', async (req, res) => {
+    try {
+        console.log("📍 PUT /cambiar-estado/:id called with id:", req.params.id, "body:", req.body);
+        const { id } = req.params;
+        const { estado } = req.body;
+        
+        // Mapear estado de string a número si es necesario
+        const estadoDb = estado === 'Vigente' || estado === 1 ? 1 : 0;
+        
+        await conexion.promise().query(
+            'UPDATE certificado SET ESTADO = ? WHERE ID_CERTIFICADO = ?',
+            [estadoDb, id]
+        );
+        
+        res.json({ message: 'Estado del certificado actualizado' });
+    } catch (err) {
+        console.error('Error cambiando estado del certificado:', err);
+        res.status(500).json({ error: 'Error cambiando estado del certificado' });
+    }
+});
+
+// =====================
+// EDITAR CERTIFICADO (GENÉRICO)
+// =====================
+router.put('/:id', async (req, res) => {
+    try {
+        console.log("📍 PUT /:id called with id:", req.params.id, "body:", req.body);
+        const { id } = req.params;
+        const datos = req.body;
+        
+        await conexion.promise().query(
+            'UPDATE certificado SET ? WHERE ID_CERTIFICADO = ?',
+            [datos, id]
+        );
+        
+        res.json({ message: 'Certificado actualizado' });
+    } catch (err) {
+        console.error('Error actualizando certificado:', err);
+        res.status(500).json({ error: 'Error actualizando certificado' });
+    }
+});
+
 export default router;

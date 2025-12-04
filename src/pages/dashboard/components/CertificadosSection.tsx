@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react';
-import { certificadosData, Certificado } from '../../../mocks/certificados';
+import { useState, useMemo, useEffect } from 'react';
+import axios from 'axios';
+import { Certificado } from '../../../mocks/certificados';
 import { integrantesData } from '../../../mocks/integrantes';
 
 export default function CertificadosSection() {
@@ -11,7 +12,7 @@ export default function CertificadosSection() {
   const [showProductModal, setShowProductModal] = useState(false);
   const [cedula, setCedula] = useState('');
   const [foundIntegrante, setFoundIntegrante] = useState<any>(null);
-  const [certificados, setCertificados] = useState(certificadosData.slice(0, 1));
+  const [certificados, setCertificados] = useState<Certificado[]>([]);
 
   const types = ['Todos', 'Adscripción', 'Producto'];
   const statuses = ['Todos', 'Vigente', 'Vencido', 'Revocado'];
@@ -51,26 +52,68 @@ export default function CertificadosSection() {
     }
   };
 
-  const handleGenerateCertificate = () => {
+  const handleGenerateCertificate = async () => {
     if (foundIntegrante) {
-      const newCert: Certificado = {
-        id: 'cert_' + Date.now(),
-        cedula: foundIntegrante.cedula,
-        beneficiario: foundIntegrante.nombre,
-        tipo: 'Adscripción',
-        estado: 'Vigente',
-        fechaEmision: new Date().toISOString(),
-        fechaVencimiento: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
-        codigo: 'CERT-' + Date.now(),
-        descripcion: `Certificado de Adscripción para ${foundIntegrante.nombre}`
-      };
-      setCertificados([...certificados, newCert]);
-      alert('Certificado generado correctamente');
-      setShowAdsModal(false);
-      setCedula('');
-      setFoundIntegrante(null);
+      try {
+        const res = await axios.post('http://localhost:4000/api/certificado', {
+          cedula: foundIntegrante.cedula,
+          beneficiario: foundIntegrante.nombre,
+          tipo: 'Adscripción',
+          estado: 'Vigente',
+          fechaEmision: new Date().toISOString(),
+          fechaVencimiento: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+          codigo: 'CERT-' + Date.now(),
+          descripcion: `Certificado de Adscripción para ${foundIntegrante.nombre}`
+        });
+        const newCert: Certificado = {
+          id: String(res.data.id || Date.now()),
+          cedula: foundIntegrante.cedula,
+          beneficiario: foundIntegrante.nombre,
+          tipo: 'Adscripción',
+          estado: 'Vigente',
+          fechaEmision: new Date().toISOString(),
+          fechaVencimiento: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+          codigo: 'CERT-' + Date.now(),
+          descripcion: `Certificado de Adscripción para ${foundIntegrante.nombre}`
+        };
+        setCertificados([...certificados, newCert]);
+        alert('Certificado generado correctamente');
+        setShowAdsModal(false);
+        setCedula('');
+        setFoundIntegrante(null);
+      } catch (err) {
+        console.error('Error generando certificado:', err);
+        alert('Error al generar certificado');
+      }
     }
   };
+
+  useEffect(() => {
+    const fetchCerts = async () => {
+      try {
+        const res = await axios.get('http://localhost:4000/api/certificado');
+        const rows = Array.isArray(res.data) ? res.data : [];
+        const normalized = rows.map((r: any) => {
+          const estado = (r.ESTADO === 1 || r.ESTADO === '1' || String(r.estado).toLowerCase() === 'vigente') ? 'Vigente' : (r.ESTADO === 0 || r.ESTADO === '0' || String(r.estado).toLowerCase() === 'vencido' ? 'Vencido' : (r.estado ?? 'Vigente'));
+          return {
+            id: String(r.ID_CERTIFICADO ?? r.id ?? r.ID ?? ''),
+            cedula: r.CEDULA ?? r.cedula ?? '',
+            beneficiario: r.BENEFICIARIO ?? r.NOMBRE ?? r.beneficiario ?? r.nombre ?? 'Desconocido',
+            tipo: r.TIPO_CERTIFICADO ?? r.TIPO ?? r.tipo ?? 'Adscripción',
+            estado,
+            fechaEmision: r.FECHA_EMISION ?? r.FECHA_SOLICITUD ?? r.fechaEmision ?? '',
+            fechaVencimiento: r.FECHA_VENCIMIENTO ?? r.fechaVencimiento ?? null,
+            codigo: r.CODIGO ?? r.codigo ?? '',
+            descripcion: r.DESCRIPCION ?? r.descripcion ?? ''
+          } as Certificado;
+        });
+        setCertificados(normalized);
+      } catch (err) {
+        console.error('Error cargando certificados:', err);
+      }
+    };
+    fetchCerts();
+  }, []);
 
   return (
     <div className="space-y-6">
